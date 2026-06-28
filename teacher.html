@@ -505,7 +505,7 @@ async function sendNotif(){
     body=(body?body+" — ":"")+"المبلغ المطلوب: "+amount+" "+$("ntCur").value;
   }
   const notif={kind,title:(MYNAME?MYNAME+": ":"")+title,body:body||null,
-    to_admin:toAdmin,to_finance:toFinance,to_amir_stage_id:toAmir?MYSTAGE:null,
+    to_admin:toAdmin,to_finance:toFinance||kind==="finance_request",to_amir_stage_id:toAmir?MYSTAGE:null,
     meta,created_by:MYCODE};
   const res=await window.NumanQueue.insertOrQueue(sb,"notifications",notif);
   toast(res.online?"تم الإرسال":"حفظ محليا — سيرسل عند عودة الاتصال");

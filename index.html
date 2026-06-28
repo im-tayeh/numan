@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>مركز النعمان بن مقرن</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16294D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="النعمان">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="lib/supabase.min.js"></script>
+<script src="lib/offline-queue.js"></script>
+<style>
+  :root{
+    --navy:#1F3A6B; --navy-deep:#16294D; --navy-soft:#E8EDF5;
+    --gold:#C9A24B; --gold-soft:#F4EEDD;
+    --bg:#F4F6F9; --surface:#FFFFFF; --ink:#1E2733; --muted:#66707D; --line:#E6E9EF;
+    --good:#1E7A48; --good-bg:#E6F1EA; --mid:#B5872B; --mid-bg:#F6EEDA; --bad:#B23B3B; --bad-bg:#FBE9E9;
+    --shadow:0 1px 2px rgba(31,58,107,.04),0 6px 18px rgba(31,58,107,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:16px;min-height:100vh}
+  h1,h2,h3{margin:0;font-weight:600}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
+
+  .topbar{background:var(--navy-deep);color:#fff;padding:11px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:30}
+  .brand{display:flex;align-items:center;gap:9px;min-width:0}
+  .brand img{height:38px;background:#fff;border-radius:7px;padding:2px;flex-shrink:0}
+  .brand h1{font-size:15px;color:#fff;line-height:1.2}
+  .brand small{display:block;font-size:11px;color:#b9c6df;font-weight:400}
+  .rolebadge{background:var(--gold);color:#3d2f0c;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .btn-ghost{background:rgba(255,255,255,.14);color:#fff;padding:6px 11px;border-radius:9px;font-size:13px;flex-shrink:0}
+
+  .tabrow{max-width:680px;margin:0 auto;padding:12px 15px 0;display:flex;gap:6px}
+  .tab{flex:1;background:transparent;color:var(--muted);padding:9px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid transparent}
+  .tab.on{background:var(--surface);color:var(--navy-deep);border-color:var(--line);box-shadow:var(--shadow)}
+
+  .wrap{max-width:680px;margin:0 auto;padding:8px 15px 80px}
+  .pane{display:none}.pane.on{display:block}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:11px;box-shadow:var(--shadow)}
+  .card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .ttl{font-weight:600;font-size:15px}
+  .by{font-size:12px;color:var(--muted);margin-top:2px}
+  .det{font-size:13px;color:var(--muted);margin-top:7px;line-height:1.8}
+  .stbadge{font-size:12px;font-weight:700;padding:3px 11px;border-radius:20px;flex-shrink:0}
+  .stbadge.pending{background:var(--mid-bg);color:var(--mid)}
+  .stbadge.approved{background:var(--good-bg);color:var(--good)}
+  .stbadge.rejected{background:var(--bad-bg);color:var(--bad)}
+  .conflict{background:var(--bad-bg);color:var(--bad);border-radius:9px;padding:8px 11px;margin-top:9px;font-size:13px;font-weight:600}
+  .notebox{background:#fbfcfe;border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin-top:9px;font-size:13px;line-height:1.7}
+  .acts{display:flex;gap:8px;margin-top:11px}
+  .acc{flex:1;background:var(--good-bg);color:var(--good);font-weight:700;padding:10px;border-radius:10px;font-size:14px}
+  .rej{flex:1;background:var(--bad-bg);color:var(--bad);font-weight:700;padding:10px;border-radius:10px;font-size:14px}
+
+  .dayhdr{font-weight:700;color:var(--navy-deep);margin:16px 0 2px;font-size:15px}
+  .slot{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-top:8px;box-shadow:var(--shadow)}
+  .slot.clash{border-color:var(--bad);background:#fdf2f2}
+  .slot .tm{font-weight:700;color:var(--navy-deep);font-size:13px;direction:ltr;flex-shrink:0;min-width:88px}
+  .slot .info{flex:1}.slot .info .n{font-weight:600;font-size:14px}.slot .info .s{font-size:12px;color:var(--muted)}
+
+  .facadd{display:flex;gap:8px;margin-top:11px;align-items:center;flex-wrap:wrap}
+  .facadd input{flex:1;min-width:140px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  .facadd label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .facadd button{background:var(--navy);color:#fff;font-weight:600;padding:0 18px;border-radius:10px}
+  .facrow{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-top:8px}
+  .facrow .x{color:var(--bad);font-size:18px}
+  .miniflag{font-size:11px;padding:1px 8px;border-radius:20px;background:var(--navy-soft);color:var(--navy-deep)}
+
+  .sheet-bg{position:fixed;inset:0;background:rgba(22,41,77,.5);display:flex;align-items:flex-end;justify-content:center;z-index:55}
+  .sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:680px;max-height:90vh;overflow-y:auto}
+  @media(min-width:560px){.sheet-bg{align-items:center}.sheet{border-radius:20px}}
+  .sheet h3{font-size:17px;color:var(--navy-deep)}
+  .sheet .who{color:var(--muted);font-size:13px;margin:2px 0 14px}
+  .sheet textarea{width:100%;min-height:90px;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fbfcfe;line-height:1.8;resize:vertical}
+  .sheet textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(31,58,107,.13)}
+  .mbtns{display:flex;gap:8px;margin-top:12px}
+  .mbtns .b{flex:1;padding:13px;border-radius:12px;font-weight:600;font-size:15px}
+  .b.primary{background:var(--navy);color:#fff}.b.sec{background:var(--navy-soft);color:var(--navy-deep)}
+
+  .login-screen{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .login-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:32px 28px;width:100%;max-width:370px;text-align:center}
+  .login-card img{height:104px;margin:0 auto 12px;display:block}
+  .login-card h1{font-size:20px;color:var(--navy-deep)}
+  .login-card p{color:var(--muted);font-size:14px;margin:4px 0 20px}
+  .login-card .f{text-align:right;margin-bottom:13px}
+  .login-card label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--muted)}
+  .login-card input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfe}
+  .login-card .lbtn{width:100%;margin-top:6px;background:var(--navy);color:#fff;padding:13px;border-radius:11px;font-weight:600;font-size:15px}
+  .msg{font-size:14px;margin-top:12px;padding:10px;border-radius:9px;display:none}
+  .msg.err{display:block;background:var(--bad-bg);color:var(--bad)}
+
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:80;max-width:90%;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+  #toast.bad{background:var(--bad)}
+  .rlbl{display:block;font-size:13px;font-weight:600;margin:10px 0 6px;color:var(--muted)}
+  .seg2{display:flex;gap:8px}
+  .segb{flex:1;padding:10px;border:1.5px solid var(--line);border-radius:10px;background:#fbfcfe;color:var(--muted);font-weight:600}
+  .segb.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy-deep)}
+  .tgl{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin:11px 0;cursor:pointer}
+  .tgl input{width:20px;height:20px;accent-color:var(--navy)}
+  .repcard{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:10px;box-shadow:var(--shadow)}
+  .repcard .rh{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--navy-deep)}
+  .repcard .cnt{background:var(--navy-soft);color:var(--navy-deep);border-radius:20px;padding:2px 11px;font-size:13px}
+  .arow{display:flex;align-items:center;gap:9px;border-top:1px solid var(--line);padding:9px 0}
+  .arow .ai{flex:1}.arow .an{font-weight:600;font-size:14px}.arow .as{font-size:12px;color:var(--muted)}
+  .revbtn{background:var(--gold-soft);color:#8a6d2a;font-weight:600;padding:7px 12px;border-radius:9px;font-size:13px;flex-shrink:0}
+  .revdone{color:var(--good);font-size:12px;font-weight:700;flex-shrink:0}
+  .reqfilter{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px}
+  .rfb{padding:7px 13px;border:1.5px solid var(--line);border-radius:9px;background:#fbfcfe;color:var(--muted);font-weight:600;font-size:13px}
+  .rfb.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy-deep)}
+  .eyebtn{background:var(--navy-soft);color:var(--navy-deep);font-weight:600;font-size:12px;padding:5px 11px;border-radius:8px}
+  /* detail modal */
+  .det-bg{position:fixed;inset:0;background:rgba(22,41,77,.55);display:grid;place-items:center;z-index:85;padding:18px}
+  .det-card{background:#fff;border-radius:18px;max-width:460px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  .det-head{background:var(--navy-deep);color:#fff;padding:16px 18px;border-radius:18px 18px 0 0;position:sticky;top:0}
+  .det-head h3{font-size:17px;margin:0}.det-head .s{font-size:12.5px;color:#b9c6df;margin-top:3px}
+  .det-body{padding:16px 18px}
+  .drow{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .drow .k{color:var(--muted);min-width:96px}.drow .v{color:var(--ink);font-weight:500;flex:1}
+  .dbox{border-radius:11px;padding:11px 13px;margin-top:11px;font-size:13.5px}
+  .dbox.viol{background:var(--bad-bg);border:1px solid #f0c9c9;color:#8a2b2b}
+  .dbox.note{background:#f3f6fb;border:1px solid var(--line);color:var(--ink)}
+  .dbox.ok{background:var(--good-bg);border:1px solid #bfe0cc;color:var(--good)}
+  .dbox b{display:block;margin-bottom:3px}
+  .det-close{margin:4px 18px 18px;width:calc(100% - 36px);padding:12px;border-radius:11px;background:var(--navy-soft);color:var(--navy-deep);font-weight:600;border:none;cursor:pointer}
+  /* notifications */
+  .notif-btn{position:relative;background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:9px;font-size:16px;border:none;cursor:pointer}
+  .notif-dot{position:absolute;top:-4px;left:-4px;background:var(--bad);color:#fff;font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .ntask{background:#fbfcfe;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:11px}
+  .ntask .nt-t{font-weight:700;color:var(--navy-deep)}
+  .ntask .nt-d{font-size:13px;color:var(--muted);margin-top:3px}
+  .nt-pill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .nt-pill.open{background:var(--mid-bg);color:var(--mid)}.nt-pill.done{background:var(--good-bg);color:var(--good)}
+  .nt-pill.deferred{background:#e9eef6;color:#3f5a86}.nt-pill.rejected{background:var(--bad-bg);color:var(--bad)}
+  .nt-rep{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 9px;margin-top:7px;font-size:13px}
+  .nt-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .nt-acts button{flex:1;min-width:84px;padding:8px;border-radius:9px;font-weight:600;font-size:12.5px;border:1px solid var(--line);background:#fff;cursor:pointer}
+  .nt-acts .bd{color:var(--good);border-color:#bfe0cc}.nt-acts .bf{color:#3f5a86}.nt-acts .br{color:var(--bad);border-color:#f0c9c9}
+  .empty{text-align:center;color:var(--muted);padding:40px 16px}
+  .hide{display:none !important}
+  .prof-bg{position:fixed;inset:0;background:rgba(22,41,77,.5);display:grid;place-items:center;z-index:90;padding:20px}
+  .prof-card{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  .prof-card h3{font-size:18px;color:#16294D;margin:0 0 12px}.prof-card h4{font-size:14px;color:#16294D;margin:0 0 10px}
+  .prof-info{display:flex;flex-direction:column;gap:7px;font-size:14px}
+  .prof-info .r{display:flex;justify-content:space-between;gap:10px}.prof-info .r b{color:#16294D}.prof-info .r span{color:#66707D}
+  .prof-hr{border:none;border-top:1px solid #E6E9EF;margin:16px 0}
+  .prof-card input{width:100%;padding:11px 12px;border:1px solid #E6E9EF;border-radius:10px;background:#fbfcfe;margin-bottom:10px;font-size:16px;font-family:inherit;box-sizing:border-box}
+  .prof-card input:focus{outline:none;border-color:#1F3A6B;box-shadow:0 0 0 3px rgba(31,58,107,.13)}
+  .prof-btns{display:flex;gap:8px;margin-top:4px}
+  .pbtn{flex:1;padding:12px;border-radius:11px;font-weight:600;font-size:15px;border:none;cursor:pointer;font-family:inherit}
+  .pbtn.primary{background:#1F3A6B;color:#fff}.pbtn.sec{background:#E8EDF5;color:#16294D}
+  .prof-msg{font-size:13px;margin-top:10px;padding:9px;border-radius:8px;display:none}
+  .prof-msg.ok{display:block;background:#E6F1EA;color:#1E7A48}.prof-msg.err{display:block;background:#FBE9E9;color:#B23B3B}
+  .prof-btn{background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:9px;font-size:16px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+
+img[src="logo.png"]{background:#fff;padding:3px;box-sizing:border-box}
+</style>
+<style>
+  .hub-wrap{padding:18px;max-width:560px;margin:0 auto}
+  .hub-hi{color:var(--navy-deep);font-size:18px;font-weight:700;margin:6px 2px 2px}
+  .hub-sub{color:var(--muted);font-size:13.5px;margin:0 2px 16px}
+  .portal{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;transition:transform .08s,border-color .15s;text-align:right;width:100%;font-family:inherit}
+  .portal:hover{border-color:var(--navy);transform:translateY(-1px)}
+  .portal .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex-shrink:0;background:var(--navy-soft)}
+  .portal .tx{flex:1;min-width:0}
+  .portal .tt{font-weight:700;color:var(--navy-deep);font-size:15.5px}
+  .portal .ds{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .portal .ar{color:var(--gold);font-size:20px;font-weight:700}
+  .portal.admin .ic{background:#EAF1FF}.portal.teacher .ic{background:var(--gold-soft)}
+  .hub-empty{text-align:center;color:var(--muted);padding:30px 16px}
+  .spin{display:grid;place-items:center;padding:48px 0}
+  .spin .d{width:34px;height:34px;border:3px solid var(--navy-soft);border-top-color:var(--navy);border-radius:50%;animation:sp 0.8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hub-top{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--navy-deep);color:#fff;padding:11px 14px;position:sticky;top:0;z-index:10}
+  .hub-top .b{display:flex;align-items:center;gap:10px}.hub-top img{width:36px;height:36px}
+  .hub-top h1{font-size:15px}.hub-top small{display:block;font-size:11px;color:#b9c6df;font-weight:400}
+</style>
+<style>
+  /* خلفية بيضاء للشعار في شريط الهب — متناسق مع باقي الصفحات */
+  .hub-top img{width:38px;height:38px;background:#fff;border-radius:8px;padding:3px;object-fit:contain}
+  /* شاشة تحميل أولية (تمنع وميض شاشة الدخول) */
+  .splash{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(160deg,#16294D,#1F3A6B);z-index:200}
+  .splash .box{text-align:center;color:#fff}
+  .splash img{width:96px;height:96px;background:#fff;border-radius:18px;padding:10px;object-fit:contain;margin-bottom:16px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+  .splash .nm{font-size:16px;font-weight:600;margin-bottom:16px}
+  .splash .d{width:30px;height:30px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}
+  /* تلميحات الدخول أصغر وأشف + رابط نسيت كلمة المرور */
+  .login-card label{color:var(--muted);opacity:.7;font-size:12px;font-weight:500}
+  .login-card input::placeholder{color:var(--muted);opacity:.45;font-size:14px}
+  .forgot{display:inline-block;margin-top:14px;color:var(--navy);font-size:13px;font-weight:600;background:none;border:none;cursor:pointer;text-decoration:underline}
+  .field-note{font-size:11px;color:var(--muted);opacity:.7;margin-top:4px}
+</style>
+<style id="numanPolish">
+/* ===== طبقة التحسين البصري الموحدة (النعمان) ===== */
+*{-webkit-tap-highlight-color:transparent}
+::selection{background:var(--gold-soft);color:var(--navy-deep)}
+html{scrollbar-width:thin;scrollbar-color:#cfd6e2 transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#cfd6e2;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#b6c0d2;background-clip:padding-box}
+/* الإدخالات: أنظف، أوضح، أكثر تفاعلا */
+.field input:not([type=checkbox]):not([type=radio]),
+.field select,.field textarea,.login-card input{
+  border:1.5px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+  box-shadow:inset 0 1px 2px rgba(31,58,107,.035);
+}
+.field input::placeholder,.field textarea::placeholder,.login-card input::placeholder{color:#9aa3b0}
+.field input:not([type=checkbox]):not([type=radio]):hover,
+.field select:hover,.field textarea:hover,.login-card input:hover{border-color:#bcc6d6;background:#fcfdff}
+.field input:not([type=checkbox]):not([type=radio]):focus,
+.field select:focus,.field textarea:focus,.login-card input:focus{
+  outline:none;border-color:var(--navy);background:var(--surface);
+  box-shadow:0 0 0 3.5px rgba(31,58,107,.14),0 2px 6px rgba(31,58,107,.08);
+}
+.field select{cursor:pointer}
+.login-card{border-top:3px solid var(--gold)}
+.login-card .lbtn{background:linear-gradient(135deg,var(--navy),var(--navy-deep))}
+/* الأزرار: عمق وتفاعل لطيف */
+.btn,.lbtn{transition:filter .18s ease,box-shadow .2s ease,transform .12s ease}
+.btn:hover,.lbtn:hover{filter:brightness(1.07);box-shadow:0 5px 16px rgba(31,58,107,.20)}
+.btn:active,.lbtn:active{transform:translateY(1px);box-shadow:0 2px 8px rgba(31,58,107,.16)}
+/* تركيز ذهبي واضح لإمكانية الوصول */
+a:focus-visible,button:focus-visible,.tab:focus-visible,[tabindex]:focus-visible{
+  outline:2.5px solid var(--gold);outline-offset:2px;border-radius:8px;
+}
+/* احترام تقليل الحركة */
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<!-- شاشة تحميل أولية -->
+<div id="splash" class="splash">
+  <div class="box">
+    <img src="logo.png" alt="مركز النعمان بن مقرن"/>
+    <div class="nm">مركز النعمان بن مقرن</div>
+    <div class="d"></div>
+  </div>
+</div>
+
+<!-- شاشة الدخول -->
+<div id="loginScreen" class="login-screen hide">
+  <div class="login-card">
+    <img src="logo.png" alt="مركز النعمان بن مقرن" />
+    <h1>مركز النعمان بن مقرن</h1>
+    <p>بوابة الدخول الموحدة</p>
+    <div class="f">
+      <label>اسم المستخدم</label>
+      <input type="text" id="loginCode" placeholder="مثال: SD551" autocomplete="username" />
+    </div>
+    <div class="f">
+      <label>كلمة المرور</label>
+      <input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" />
+    </div>
+    <button class="lbtn" id="loginBtn">دخول</button>
+    <div class="msg" id="loginMsg"></div>
+    <button class="forgot" id="forgotLink">نسيت كلمة المرور؟</button>
+  </div>
+</div>
+
+<!-- البوابات -->
+<div id="hub" class="hide">
+  <div class="hub-top">
+    <div class="b"><img src="logo.png" alt="المركز"/><div><h1>مركز النعمان بن مقرن<small id="hubWho"></small></h1></div></div>
+    <button class="btn-ghost" onclick="logout()">خروج</button>
+  </div>
+  <div class="hub-wrap">
+    <div class="hub-hi">أهلا بك 👋</div>
+    <div class="hub-sub">اختر البوابة التي تريد الدخول إليها — حسب دورك في المركز.</div>
+    <div id="hubBody"></div>
+  </div>
+</div>
+
+<!-- نسيت كلمة المرور -->
+<div id="forgotModal" class="prof-bg hide">
+  <div class="prof-card">
+    <h3>نسيت كلمة المرور</h3>
+    <p style="color:var(--muted);font-size:13px;margin:-4px 0 14px">اكتب اسمك، وسيتواصل معك محفظك أو الإدارة لإعادة التعيين.</p>
+    <label class="rlbl">الاسم <span style="color:var(--bad)">*</span></label>
+    <input type="text" id="fgName" placeholder="اسمك الكامل"/>
+    <label class="rlbl">رقم البطاقة (اختياري)</label>
+    <input type="text" id="fgCode" placeholder="مثال: SD551"/>
+    <div class="prof-msg" id="fgMsg"></div>
+    <div class="prof-btns" style="margin-top:14px">
+      <button class="pbtn primary" id="fgSend">إرسال الطلب</button>
+      <button class="pbtn sec" id="fgClose">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- تغيير كلمة المرور (الدخول الخامس / إجباري) -->
+<div id="pwdModal" class="prof-bg hide">
+  <div class="prof-card">
+    <h3 id="pwdTitle">تغيير كلمة المرور</h3>
+    <p style="color:var(--muted);font-size:13px;margin:-4px 0 14px" id="pwdSub">ينصح بتغيير كلمة المرور الافتراضية إلى كلمة خاصة بك.</p>
+    <input type="password" id="pwd1" placeholder="كلمة مرور جديدة (6 أحرف فأكثر)"/>
+    <input type="password" id="pwd2" placeholder="تأكيد كلمة المرور"/>
+    <div class="prof-msg" id="pwdMsg"></div>
+    <div class="prof-btns" style="margin-top:6px">
+      <button class="pbtn primary" id="pwdSave">حفظ</button>
+      <button class="pbtn sec" id="pwdLater">لاحقا</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL="https://zubmytkocwaxhryctbmm.supabase.co",SUPABASE_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1Ym15dGtvY3dheGhyeWN0Ym1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0Nzg2MTgsImV4cCI6MjA5ODA1NDYxOH0.p0IrIBISGSPY0Wfg-hU7ryDHYRyz9jMCVk6ID5TkG3U";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m,bad){const t=$("toast");t.textContent=m;t.className=bad?"show bad":"show";setTimeout(()=>t.className="",2800);}
+let sb=null, ME=null;
+
+// تسجيل عامل الخدمة (PWA) — أوفلاين + تحديث تلقائي
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+
+window.addEventListener("DOMContentLoaded",init);
+async function init(){
+  sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{storageKey:"numan-auth"}});
+  window.__numanSb=sb; try{window.__numanToast=toast;}catch(e){}
+  $("loginBtn").onclick=login;
+  ["loginCode","loginPass"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")login();}));
+  $("forgotLink").onclick=()=>{ $("fgMsg").className="prof-msg"; $("fgName").value=""; $("fgCode").value=""; $("forgotModal").classList.remove("hide"); };
+  $("fgClose").onclick=()=>$("forgotModal").classList.add("hide");
+  $("fgSend").onclick=sendForgot;
+  $("pwdSave").onclick=savePwd;
+  $("pwdLater").onclick=()=>$("pwdModal").classList.add("hide");
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){ enterHub(session,true); } else { showLogin(); }
+}
+function showSplash(){ $("splash").classList.remove("hide"); $("loginScreen").classList.add("hide"); $("hub").classList.add("hide"); }
+function showLogin(){ $("splash").classList.add("hide"); $("hub").classList.add("hide"); $("loginScreen").classList.remove("hide"); }
+function errLogin(m){$("loginMsg").textContent=m;$("loginMsg").className="msg err";}
+
+async function login(){
+  const code=$("loginCode").value.trim(),pass=$("loginPass").value;
+  if(!code||!pass)return errLogin("اكتب اسم المستخدم وكلمة المرور");
+  $("loginMsg").className="msg";
+  const {data,error}=await sb.auth.signInWithPassword({email:code.toLowerCase()+"@numan.com",password:pass});
+  if(error)return errLogin("بيانات الدخول غير صحيحة");
+  enterHub(data.session,false);
+}
+
+function route(name){
+  if(name==="المالية")return "finance.html";
+  if(name==="اللوجستية")return "logistics.html?c="+encodeURIComponent(name);
+  if(name==="التقنية والإعلامية")return "media.html?c="+encodeURIComponent(name);
+  return "committee.html?c="+encodeURIComponent(name);
+}
+
+async function enterHub(session, resumed){
+  showSplash();
+  const meP=sb.from("staff").select("code,full_name,role,halaqa_id").eq("auth_uid",session.user.id).maybeSingle();
+  const me=(await meP).data;
+  if(!me){ await sb.auth.signOut(); showLogin(); errLogin("لا يوجد سجل لحسابك."); return; }
+  ME=me;
+  // عداد الدخول (فقط عند تسجيل دخول فعلي) — تنبيه الدخول الخامس
+  if(!resumed){
+    try{
+      const {data:rl}=await sb.rpc("register_login");
+      const row=Array.isArray(rl)?rl[0]:rl;
+      if(row && (row.must_change || row.login_count===5)){ maybePromptPwd(row); }
+    }catch(e){}
+  }
+  const {data:mems}=await sb.from("committee_members").select("role,committees(name)").eq("staff_code",me.code);
+  const {data:amirStage}=await sb.from("stages").select("name").eq("amir_code",me.code).maybeSingle();
+  // بناء قائمة البوابات
+  const portals=[];
+  if(me.role==="admin") portals.push({cls:"admin",ic:"🏛️",tt:"لوحة الإدارة",ds:"الحلقات والمحفظين والطلاب واللجان",url:"admin.html"});
+  if(amirStage) portals.push({cls:"admin",ic:"🎖️",tt:"إشراف "+amirStage.name,ds:"حلقات ومحفظو وطلاب مرحلتك",url:"admin.html"});
+  if(me.halaqa_id)      portals.push({cls:"teacher",ic:"📖",tt:"حلقتي",ds:"الحضور والتسميع وطلاب حلقتك",url:"teacher.html"});
+  (mems||[]).forEach(m=>{ const nm=m.committees&&m.committees.name; if(!nm)return;
+    portals.push({cls:"",ic:"🧩",tt:"لجنة "+nm,ds:(m.role==="lead"?"مسؤول اللجنة":"عضو اللجنة"),url:route(nm)}); });
+
+  // صلاحية واحدة فقط → ادخلها مباشرة (#6)
+  if(portals.length===1 && !shouldShowPwd){ location.href=portals[0].url; return; }
+  if(portals.length===0){ $("hubBody").innerHTML='<div class="hub-empty">لا توجد بوابات مرتبطة بحسابك بعد.<br/>تواصل مع الإدارة.</div>'; }
+  else $("hubBody").innerHTML=portals.map(p=>
+    `<button class="portal ${p.cls}" onclick="location.href='${p.url}'"><div class="ic">${p.ic}</div><div class="tx"><div class="tt">${esc(p.tt)}</div><div class="ds">${esc(p.ds)}</div></div><div class="ar">‹</div></button>`).join("");
+  $("hubWho").textContent=me.full_name+" · "+me.code;
+  // أظهر الهب
+  $("splash").classList.add("hide"); $("loginScreen").classList.add("hide"); $("hub").classList.remove("hide");
+}
+
+// نسيت كلمة المرور
+async function sendForgot(){
+  const name=$("fgName").value.trim(), code=$("fgCode").value.trim();
+  if(!name) { $("fgMsg").textContent="اكتب اسمك"; $("fgMsg").className="prof-msg err"; return; }
+  const {error}=await sb.rpc("request_password_reset",{p_name:name,p_code:code||null});
+  if(error){ $("fgMsg").textContent="تعذر الإرسال، حاول لاحقا"; $("fgMsg").className="prof-msg err"; return; }
+  $("fgMsg").textContent="تم إرسال طلبك ✓ سيتم الرد عليك من قبل محفظك أو الإدارة.";
+  $("fgMsg").className="prof-msg ok";
+  setTimeout(()=>$("forgotModal").classList.add("hide"),2600);
+}
+
+// تغيير كلمة المرور (الدخول الخامس)
+let shouldShowPwd=false;
+function maybePromptPwd(row){
+  shouldShowPwd=true;
+  $("pwdTitle").textContent = row.must_change ? "مطلوب تغيير كلمة المرور" : "هل تريد تغيير كلمة المرور؟";
+  $("pwdSub").textContent   = row.must_change ? "أنت تستخدم كلمة المرور الافتراضية. يفضل تغييرها الآن."
+                                              : "هذه خامس مرة تدخل فيها — ننصحك بتغيير كلمة المرور إلى كلمة خاصة بك.";
+  $("pwd1").value="";$("pwd2").value="";$("pwdMsg").className="prof-msg";
+  $("pwdModal").classList.remove("hide");
+}
+async function savePwd(){
+  const a=$("pwd1").value,b=$("pwd2").value;
+  if(a.length<6){ $("pwdMsg").textContent="6 أحرف فأكثر"; $("pwdMsg").className="prof-msg err"; return; }
+  if(a!==b){ $("pwdMsg").textContent="كلمتا المرور غير متطابقتين"; $("pwdMsg").className="prof-msg err"; return; }
+  const {error}=await sb.auth.updateUser({password:a});
+  if(error){ $("pwdMsg").textContent="تعذر التغيير"; $("pwdMsg").className="prof-msg err"; return; }
+  try{ await sb.rpc("clear_must_change"); }catch(e){}
+  shouldShowPwd=false;
+  toast("تم تغيير كلمة المرور ✓");
+  $("pwdModal").classList.add("hide");
+  // لو كان توجيه مباشر مؤجلا، أعد الحساب
+  const {data:{session}}=await sb.auth.getSession();
+  if(session) enterHub(session,true);
+}
+
+async function logout(){ await sb.auth.signOut(); location.reload(); }
+</script>
+</body>
+</html>

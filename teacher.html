@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>مركز النعمان بن مقرن · شاشة المحفظ</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16294D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="النعمان">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1F3A6B; --navy-deep:#16294D; --navy-soft:#E8EDF5;
+    --gold:#C9A24B; --gold-soft:#F4EEDD;
+    --bg:#F4F6F9; --surface:#FFFFFF; --ink:#1E2733; --muted:#66707D; --line:#E6E9EF;
+    --good:#1E7A48; --good-bg:#E6F1EA; --mid:#B5872B; --mid-bg:#F6EEDA; --bad:#B23B3B; --bad-bg:#FBE9E9;
+    --shadow:0 1px 2px rgba(31,58,107,.04),0 6px 18px rgba(31,58,107,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:16px;min-height:100vh}
+  h1,h2,h3{margin:0;font-weight:600}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  input,select{font-family:inherit;font-size:16px;color:var(--ink)}
+
+  .topbar{background:var(--navy-deep);color:#fff;padding:10px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:30}
+  .brand{display:flex;align-items:center;gap:9px;min-width:0}
+  .brand img{height:38px;background:#fff;border-radius:7px;padding:2px;flex-shrink:0}
+  .brand h1{font-size:15px;color:#fff;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand small{display:block;font-size:11px;color:#b9c6df;font-weight:400}
+  .btn-ghost{background:rgba(255,255,255,.14);color:#fff;padding:6px 11px;border-radius:9px;font-size:13px;flex-shrink:0}
+
+  .toolbar{position:sticky;top:58px;z-index:25;background:var(--bg);padding:11px 15px 0}
+  .toolrow{max-width:680px;margin:0 auto;display:flex;gap:9px;align-items:stretch}
+  .datebox{flex:1;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:0 12px;box-shadow:var(--shadow)}
+  .datebox span{font-size:13px;color:var(--muted)}
+  .datebox input{border:none;background:none;flex:1;padding:11px 0;font-weight:600}
+  .datebox input:focus{outline:none}
+  .scanbtn{display:flex;align-items:center;gap:7px;background:var(--navy);color:#fff;font-weight:600;font-size:14px;padding:0 16px;border-radius:11px;box-shadow:var(--shadow)}
+  .scanbtn:active{transform:scale(.98)}
+
+  .tabrow{max-width:680px;margin:11px auto 0;display:flex;gap:6px}
+  .tab{flex:1;background:transparent;color:var(--muted);padding:9px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid transparent}
+  .tab.on{background:var(--surface);color:var(--navy-deep);border-color:var(--line);box-shadow:var(--shadow)}
+
+  .wrap{max-width:680px;margin:0 auto;padding:6px 15px 80px}
+  .pane{display:none}.pane.on{display:block}
+
+  /* compact student rows */
+  .srow{background:var(--surface);border:1px solid var(--line);border-radius:13px;margin-top:9px;overflow:hidden;box-shadow:var(--shadow)}
+  .head{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer}
+  .head .nm{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+  .head .nm b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .head .code{direction:ltr;background:var(--navy-soft);color:var(--navy-deep);padding:1px 7px;border-radius:6px;font-weight:600;font-size:11px;flex-shrink:0}
+  .head .sum{display:flex;align-items:center;gap:7px;flex-shrink:0;color:var(--muted);font-size:13px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--line)}
+  .dot.good{background:var(--good)}.dot.mid{background:var(--mid)}.dot.bad{background:var(--bad)}
+  .chev{color:var(--muted);transition:transform .2s;font-size:13px}
+  .srow.open .chev{transform:rotate(180deg)}
+  .recpill{background:var(--gold-soft);color:#8a6d2a;border-radius:20px;padding:1px 8px;font-size:12px;font-weight:600}
+
+  .body{display:none;padding:0 14px 14px;border-top:1px solid var(--line)}
+  .srow.open .body{display:block}
+  .lbl{font-size:12px;color:var(--muted);margin:13px 0 6px;font-weight:600}
+  .seg{display:flex;gap:7px}
+  .opt{flex:1;padding:9px 4px;border:1.5px solid var(--line);border-radius:10px;background:#fbfcfe;color:var(--muted);font-weight:600;font-size:14px;transition:.12s;display:flex;align-items:center;justify-content:center;gap:5px}
+  .opt:active{transform:scale(.97)}
+  .opt.on{background:var(--navy-soft);border-color:var(--navy);color:var(--navy-deep)}
+  .opt.on.good{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+  .opt.on.mid{background:var(--mid-bg);border-color:var(--mid);color:var(--mid)}
+  .opt.on.bad{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+  .ic{font-size:15px;font-weight:700}
+
+  .recs{margin-top:8px;display:flex;flex-direction:column;gap:7px}
+  .rec{display:flex;align-items:center;gap:9px;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+  .rec .info{flex:1;min-width:0}
+  .rec .t{font-weight:600;font-size:14px}
+  .rec .d{font-size:12px;color:var(--muted)}
+  .rec .r{font-size:12px;font-weight:700;padding:2px 9px;border-radius:7px;flex-shrink:0}
+  .rec .r.good{background:var(--good-bg);color:var(--good)}.rec .r.mid{background:var(--mid-bg);color:var(--mid)}.rec .r.bad{background:var(--bad-bg);color:var(--bad)}
+  .rec .x{color:var(--bad);font-size:20px;line-height:1;padding:0 4px;flex-shrink:0}
+  .twobtn{display:flex;gap:8px;margin-top:11px}
+  .addrec{flex:1;background:var(--navy-soft);color:var(--navy-deep);font-weight:600;padding:11px;border-radius:11px;font-size:14px}
+  .editbtn{background:var(--gold-soft);color:#8a6d2a;font-weight:600;padding:11px 16px;border-radius:11px;font-size:14px}
+
+  /* notes */
+  .noteadd{display:flex;gap:8px;margin-top:11px}
+  .noteadd input{flex:1;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:var(--surface)}
+  .noteadd input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(31,58,107,.12)}
+  .noteadd button{background:var(--navy);color:#fff;font-weight:600;padding:0 18px;border-radius:11px}
+  .note{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-top:9px;box-shadow:var(--shadow)}
+  .note input[type=checkbox]{width:20px;height:20px;accent-color:var(--good);margin-top:2px;flex-shrink:0}
+  .note .c{flex:1;font-size:15px}
+  .note.done .c{text-decoration:line-through;color:var(--muted)}
+  .note .when{font-size:11px;color:var(--muted)}
+  .note .x{color:var(--bad);font-size:19px;flex-shrink:0}
+
+  /* scanner — مودال أنيق (مطابق لصفحة الإدارة) */
+  .scan-modal{position:fixed;inset:0;background:rgba(22,41,77,.65);z-index:96;display:none;align-items:center;justify-content:center;padding:18px}
+  .scan-modal.show{display:flex}
+  .scan-box{background:#fff;border-radius:18px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  .scan-box .sh{background:#16294D;color:#fff;padding:13px 16px;display:flex;justify-content:space-between;align-items:center}
+  .scan-box .sh h3{margin:0;font-size:16px}
+  .scan-box .sb{padding:14px}
+  #scanReader{width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:60px}
+  .scan-x{background:rgba(255,255,255,.2);color:#fff;border:none;width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer}
+  .scan-res{margin-top:12px;padding:11px;border-radius:10px;font-weight:700;text-align:center;display:none}
+  .scan-hint{font-size:12px;color:#66707D;text-align:center;margin-top:8px}
+
+  /* bottom sheet modal */
+  .sheet-bg{position:fixed;inset:0;background:rgba(22,41,77,.5);display:flex;align-items:flex-end;justify-content:center;z-index:55}
+  .sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  @media(min-width:560px){.sheet-bg{align-items:center}.sheet{border-radius:20px}}
+  .sheet h3{font-size:17px;color:var(--navy-deep)}
+  .sheet .who{color:var(--muted);font-size:13px;margin:2px 0 16px}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--muted)}
+  .field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfe}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(31,58,107,.13)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mbtns{display:flex;gap:8px;margin-top:8px}
+  .mbtns .b{flex:1;padding:13px;border-radius:12px;font-weight:600;font-size:15px}
+  .b.primary{background:var(--navy);color:#fff}.b.gold{background:var(--gold);color:#3d2f0c}.b.sec{background:var(--navy-soft);color:var(--navy-deep)}
+
+  .login-screen{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .login-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:32px 28px;width:100%;max-width:370px;text-align:center}
+  .login-card img{height:104px;margin:0 auto 12px;display:block}
+  .login-card h1{font-size:20px;color:var(--navy-deep)}
+  .login-card p{color:var(--muted);font-size:14px;margin:4px 0 20px}
+  .login-card .field{text-align:right}
+  .login-card .lbtn{width:100%;margin-top:6px;background:var(--navy);color:#fff;padding:13px;border-radius:11px;font-weight:600;font-size:15px}
+  .msg{font-size:14px;margin-top:12px;padding:10px;border-radius:9px;display:none}
+  .msg.err{display:block;background:var(--bad-bg);color:var(--bad)}
+
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:80;max-width:90%;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+  #toast.bad{background:var(--bad)}
+  .newreq{width:100%;background:var(--navy);color:#fff;font-weight:600;padding:13px;border-radius:12px;font-size:15px;margin-top:11px}
+  .reqcard{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:10px;box-shadow:var(--shadow)}
+  .reqcard .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .reqcard .ttl{font-weight:600;font-size:15px}
+  .reqcard .det{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.8}
+  .stbadge{font-size:12px;font-weight:700;padding:3px 11px;border-radius:20px;flex-shrink:0}
+  .stbadge.pending{background:var(--mid-bg);color:var(--mid)}
+  .stbadge.approved{background:var(--good-bg);color:var(--good)}
+  .stbadge.rejected{background:var(--bad-bg);color:var(--bad)}
+  .notebox{background:#fbfcfe;border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin-top:9px;font-size:13px;line-height:1.7}
+  .reqedit{margin-top:10px;background:var(--gold-soft);color:#8a6d2a;font-weight:600;padding:9px 15px;border-radius:9px;font-size:13px}
+  .seg5{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .tgl{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:var(--ink);background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:10px;cursor:pointer}
+  .tgl input{width:20px;height:20px;accent-color:var(--navy);flex-shrink:0}
+  .empty{text-align:center;color:var(--muted);padding:40px 16px}
+  .hide{display:none !important}
+  .prof-bg{position:fixed;inset:0;background:rgba(22,41,77,.5);display:grid;place-items:center;z-index:90;padding:20px}
+  .prof-card{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  .prof-card h3{font-size:18px;color:#16294D;margin:0 0 12px}.prof-card h4{font-size:14px;color:#16294D;margin:0 0 10px}
+  .prof-info{display:flex;flex-direction:column;gap:7px;font-size:14px}
+  .prof-info .r{display:flex;justify-content:space-between;gap:10px}.prof-info .r b{color:#16294D}.prof-info .r span{color:#66707D}
+  .prof-hr{border:none;border-top:1px solid #E6E9EF;margin:16px 0}
+  .prof-card input{width:100%;padding:11px 12px;border:1px solid #E6E9EF;border-radius:10px;background:#fbfcfe;margin-bottom:10px;font-size:16px;font-family:inherit;box-sizing:border-box}
+  .prof-card input:focus{outline:none;border-color:#1F3A6B;box-shadow:0 0 0 3px rgba(31,58,107,.13)}
+  .prof-btns{display:flex;gap:8px;margin-top:4px}
+  .pbtn{flex:1;padding:12px;border-radius:11px;font-weight:600;font-size:15px;border:none;cursor:pointer;font-family:inherit}
+  .pbtn.primary{background:#1F3A6B;color:#fff}.pbtn.sec{background:#E8EDF5;color:#16294D}
+  .prof-msg{font-size:13px;margin-top:10px;padding:9px;border-radius:8px;display:none}
+  .prof-msg.ok{display:block;background:#E6F1EA;color:#1E7A48}.prof-msg.err{display:block;background:#FBE9E9;color:#B23B3B}
+  .prof-btn{background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:9px;font-size:16px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+
+img[src="logo.png"]{background:#fff;padding:3px;box-sizing:border-box}
+</style>
+<style id="numanPolish">
+/* ===== طبقة التحسين البصري الموحدة (النعمان) ===== */
+*{-webkit-tap-highlight-color:transparent}
+::selection{background:var(--gold-soft);color:var(--navy-deep)}
+html{scrollbar-width:thin;scrollbar-color:#cfd6e2 transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#cfd6e2;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#b6c0d2;background-clip:padding-box}
+/* الإدخالات: أنظف، أوضح، أكثر تفاعلا */
+.field input:not([type=checkbox]):not([type=radio]),
+.field select,.field textarea,.login-card input{
+  border:1.5px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+  box-shadow:inset 0 1px 2px rgba(31,58,107,.035);
+}
+.field input::placeholder,.field textarea::placeholder,.login-card input::placeholder{color:#9aa3b0}
+.field input:not([type=checkbox]):not([type=radio]):hover,
+.field select:hover,.field textarea:hover,.login-card input:hover{border-color:#bcc6d6;background:#fcfdff}
+.field input:not([type=checkbox]):not([type=radio]):focus,
+.field select:focus,.field textarea:focus,.login-card input:focus{
+  outline:none;border-color:var(--navy);background:var(--surface);
+  box-shadow:0 0 0 3.5px rgba(31,58,107,.14),0 2px 6px rgba(31,58,107,.08);
+}
+.field select{cursor:pointer}
+/* الأزرار: عمق وتفاعل لطيف */
+.btn,.lbtn{transition:filter .18s ease,box-shadow .2s ease,transform .12s ease}
+.btn:hover,.lbtn:hover{filter:brightness(1.07);box-shadow:0 5px 16px rgba(31,58,107,.20)}
+.btn:active,.lbtn:active{transform:translateY(1px);box-shadow:0 2px 8px rgba(31,58,107,.16)}
+/* تركيز ذهبي واضح لإمكانية الوصول */
+a:focus-visible,button:focus-visible,.tab:focus-visible,[tabindex]:focus-visible{
+  outline:2.5px solid var(--gold);outline-offset:2px;border-radius:8px;
+}
+/* احترام تقليل الحركة */
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <img src="logo.png" alt="مركز النعمان بن مقرن" />
+    <h1>شاشة المحفظ</h1>
+    <p>مركز النعمان بن مقرن</p>
+    <div class="field"><label>اسم المستخدم</label><input type="text" id="loginCode" placeholder="مثال: SD551" /></div>
+    <div class="field"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••" /></div>
+    <button class="lbtn" id="loginBtn">دخول</button>
+    <div class="msg" id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hide">
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo.png" alt="المركز" />
+      <div><h1 id="hHalaqa">—<small id="hWho"></small></h1></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center"><button class="prof-btn" id="profBtn" title="الملف الشخصي">⚙️</button><button id="switchPortalBtn" class="btn-ghost hide" onclick="location.href='index.html'" title="تغيير البوابة" style="margin-inline-end:6px">البوابات</button><button class="btn-ghost" id="logoutBtn">خروج</button></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolrow">
+      <div class="datebox"><span>التاريخ</span><input type="date" id="datePick" /></div>
+      <button class="scanbtn" id="scanBtn">📷 مسح</button>
+    </div>
+    <div class="tabrow">
+      <button class="tab on" data-pane="students">الطلاب</button>
+      <button class="tab" data-pane="notes">ملاحظات</button>
+      <button class="tab" data-pane="activity">أنشطة</button>
+      <button class="tab" data-pane="notify">إشعارات</button>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="pane on" id="pane-students"><div id="list"></div></section>
+    <section class="pane" id="pane-notes">
+      <div class="noteadd"><input type="text" id="noteInput" placeholder="اكتب ملاحظة أو مهمة…" /><button id="noteAdd">إضافة</button></div>
+      <div id="notesList"></div>
+    </section>
+    <section class="pane" id="pane-activity">
+      <button class="newreq" id="newReqBtn">+ طلب نشاط جديد</button>
+      <div id="reqList"></div>
+    </section>
+    <section class="pane" id="pane-notify">
+      <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px">
+        <h3 style="margin:0 0 12px">إرسال إشعار / طلب</h3>
+        <div class="field"><label>النوع</label>
+          <select id="ntKind"><option value="general">إشعار عام</option><option value="finance_request">طلب مصاري للتحفيظ</option></select></div>
+        <div class="field"><label>الموضوع</label><input type="text" id="ntTitle" placeholder="عنوان مختصر" /></div>
+        <div class="field"><label>التفاصيل</label><textarea id="ntBody" rows="3" placeholder="اكتب التفاصيل…"></textarea></div>
+        <div class="hide" id="ntMoneyWrap" style="display:flex;gap:10px">
+          <div class="field" style="flex:1"><label>المبلغ المطلوب</label><input type="number" id="ntAmount" min="0" step="0.01" placeholder="0" /></div>
+          <div class="field" style="flex:1"><label>العملة</label><select id="ntCur"><option>شيكل</option><option>دولار</option><option>دينار</option></select></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin:10px 0">
+          <label style="display:flex;gap:5px;align-items:center;font-size:14px"><input type="checkbox" id="ntAdmin" checked /> الإدارة</label>
+          <label style="display:flex;gap:5px;align-items:center;font-size:14px"><input type="checkbox" id="ntFinance" /> المالية</label>
+          <label style="display:flex;gap:5px;align-items:center;font-size:14px"><input type="checkbox" id="ntAmir" checked /> أمير المرحلة</label>
+        </div>
+        <button id="ntSend" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;cursor:pointer;width:100%">إرسال</button>
+      </div>
+      <p style="color:var(--muted);font-size:13px;text-align:center">يصل الإشعار فورا للجهات المختارة. لطلب المصاري، المالية بتسجل الدين عندها.</p>
+    </section>
+  </main>
+</div>
+
+<!-- SCANNER -->
+<div class="scan-modal" id="scanModal">
+  <div class="scan-box">
+    <div class="sh"><h3>مسح الحضور</h3><button class="scan-x" id="scanClose">✕</button></div>
+    <div class="sb"><div id="scanReader"></div><div class="scan-res" id="scanRes"></div><div class="scan-hint">وجه الكاميرا نحو رمز الطالب أو المحفظ</div></div>
+  </div>
+</div>
+
+<!-- RECITATION SHEET -->
+<div id="recModal" class="sheet-bg hide">
+  <div class="sheet">
+    <h3>إضافة تسميع</h3><div class="who" id="recWho"></div>
+    <div class="field"><label>النوع</label>
+      <div class="grid2" id="recTypes">
+        <button class="opt" data-v="new_hifdh">حفظ جديد</button>
+        <button class="opt" data-v="review">مراجعة</button>
+        <button class="opt" data-v="recite">سرد</button>
+        <button class="opt" data-v="test">اختبار</button>
+      </div>
+    </div>
+    <div class="field"><label>السورة</label><select id="recSurah"></select></div>
+    <div class="grid2">
+      <div class="field"><label>من آية</label><input type="number" id="recFrom" min="1" placeholder="1" /></div>
+      <div class="field"><label>إلى آية</label><input type="number" id="recTo" min="1" placeholder="10" /></div>
+    </div>
+    <div class="field"><label>التقدير</label>
+      <div class="seg" id="recRates">
+        <button class="opt bad" data-v="weak">ضعيف</button>
+        <button class="opt mid" data-v="medium">متوسط</button>
+        <button class="opt good" data-v="excellent">ممتاز</button>
+      </div>
+    </div>
+    <div class="mbtns">
+      <button class="b primary" id="recSave">حفظ</button>
+      <button class="b gold" id="recSaveMore">حفظ + آخر</button>
+      <button class="b sec" id="recCancel">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT EDIT SHEET -->
+<div id="editModal" class="sheet-bg hide">
+  <div class="sheet">
+    <h3>تعديل بيانات الطالب</h3><div class="who" id="edWho"></div>
+    <div class="field"><label>الاسم الرباعي</label><input type="text" id="edName" /></div>
+    <div class="grid2">
+      <div class="field"><label>رقم الهوية</label><input type="text" id="edNid" /></div>
+      <div class="field"><label>تاريخ الميلاد</label><input type="date" id="edDob" /></div>
+    </div>
+    <div class="field"><label>واتساب ولي الأمر</label><input type="text" id="edWa" placeholder="00970…" /></div>
+    <div class="grid2">
+      <div class="field"><label>الحالة</label><select id="edStatus"><option value="committed">ملتزم</option><option value="withdrawn">منقطع</option></select></div>
+      <div class="field"><label>الحالة الاجتماعية</label><select id="edOrphan"><option value="non_orphan">غير يتيم</option><option value="orphan">يتيم</option></select></div>
+    </div>
+    <div class="mbtns"><button class="b primary" id="edSave">حفظ</button><button class="b sec" id="edCancel">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- REQUEST SHEET -->
+<div id="reqModal" class="sheet-bg hide">
+  <div class="sheet">
+    <h3 id="reqTitle">طلب نشاط جديد</h3>
+    <div class="field"><label>نوع النشاط</label>
+      <div class="seg5" id="reqKinds">
+        <button class="opt" data-v="swimming">سباحة</button>
+        <button class="opt" data-v="tennis">تنس</button>
+        <button class="opt" data-v="baseball">بيس</button>
+        <button class="opt" data-v="football">كرة قدم</button>
+        <button class="opt" data-v="beach_no_swim">شاطئ بدون سباحة</button>
+      </div>
+    </div>
+    <div class="field"><label>المكان / المرفق</label><select id="reqFac"></select></div>
+    <div class="grid2">
+      <div class="field"><label>اليوم</label><select id="reqDay"><option value="">—</option><option>السبت</option><option>الأحد</option><option>الإثنين</option><option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option></select></div>
+      <div class="field"><label>التاريخ</label><input type="date" id="reqDate" /></div>
+    </div>
+    <div class="grid2">
+      <div class="field" style="grid-column:1/-1"><label>وقت النشاط</label><input type="text" id="reqTime" placeholder="مثال: بعد العصر، من 4 إلى 6" /></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>عدد الطلاب</label><input type="number" id="reqCount" min="0" /></div>
+      <div class="field"><label>المحفظون المشاركون</label><input type="text" id="reqParts" /></div>
+    </div>
+    <div class="field"><label>هل ستحضر لهم شيئا؟ <span style="color:var(--muted);font-weight:400">(اختياري)</span></label><input type="text" id="reqBring" placeholder="مثال: عصائر، حلوى" /></div>
+    <label class="tgl"><input type="checkbox" id="reqMoneyChk" /> جمع منهم مال</label>
+    <div class="field hide" id="reqMoneyWrap"><input type="text" id="reqMoney" placeholder="تفاصيل المبلغ المجموع" /></div>
+    <label class="tgl"><input type="checkbox" id="reqBudgetChk" /> أحتاج ميزانية من المركز</label>
+    <div class="field hide" id="reqBudgetWrap"><input type="text" id="reqBudget" placeholder="القيمة / التفاصيل" /></div>
+    <label class="tgl"><input type="checkbox" id="reqSuppliesChk" /> أحتاج أغراضا من المركز</label>
+    <div class="field hide" id="reqSuppliesWrap"><input type="text" id="reqSupplies" placeholder="ما الأغراض المطلوبة؟" /></div>
+    <div class="field"><label>تفاصيل أخرى</label><input type="text" id="reqDetails" placeholder="أي تفاصيل إضافية" /></div>
+    <div class="mbtns"><button class="b primary" id="reqSave">إرسال الطلب</button><button class="b sec" id="reqCancel">إلغاء</button></div>
+  </div>
+</div>
+
+<div id="profModal" class="prof-bg hide">
+  <div class="prof-card">
+    <h3>الملف الشخصي</h3>
+    <div id="profInfo" class="prof-info"></div>
+    <hr class="prof-hr"/>
+    <h4>تغيير كلمة المرور</h4>
+    <input type="password" id="profPass1" placeholder="كلمة مرور جديدة (6 أحرف فأكثر)" />
+    <input type="password" id="profPass2" placeholder="تأكيد كلمة المرور" />
+    <div class="prof-btns"><button class="pbtn primary" id="profSave">تغيير كلمة المرور</button><button class="pbtn sec" id="profClose">إغلاق</button></div>
+    <div class="prof-msg" id="profMsg"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="lib/supabase.min.js"></script>
+<script src="lib/offline-queue.js"></script>
+<script>
+/* ====== مفاتيح Supabase (مثبتة) ====== */
+const SUPABASE_URL  = "https://zubmytkocwaxhryctbmm.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1Ym15dGtvY3dheGhyeWN0Ym1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0Nzg2MTgsImV4cCI6MjA5ODA1NDYxOH0.p0IrIBISGSPY0Wfg-hU7ryDHYRyz9jMCVk6ID5TkG3U";
+const DOMAIN="@numan.com";
+/* ===================================== */
+
+const SURAHS=["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
+const TYPE_AR={new_hifdh:"حفظ جديد",review:"مراجعة",recite:"سرد",test:"اختبار"};
+const RATE_AR={weak:"ضعيف",medium:"متوسط",excellent:"ممتاز"};
+const RATE_SEM={weak:"bad",medium:"mid",excellent:"good"};
+const ATT_SEM={present:"good",late:"mid",absent:"bad",excused:"mid"};
+const ATT_IC={present:"✓",late:"⏰",absent:"✗",excused:"م"};
+const KIND_AR={swimming:"سباحة",tennis:"تنس",baseball:"بيس",football:"كرة قدم",beach_no_swim:"شاطئ بدون سباحة"};
+const REQ_ST={pending:"قيد المراجعة",approved:"مقبول",rejected:"مرفوض"};
+
+let sb=null, MYCODE=null, MYHALAQA=null, MYSTAGE=null, MYNAME=null;
+let OFFLINE_MODE=false; let SETTINGS={};
+let FACILITIES=[], REQS=[], reqEdit=null;
+let STUDENTS=[], DR={}, RECS={};
+let SELDATE=new Date().toLocaleDateString("en-CA");
+const $=(id)=>document.getElementById(id);
+async function openProfile(){
+  $("profMsg").className="prof-msg"; $("profPass1").value="";$("profPass2").value="";
+  let info="";
+  try{
+    const {data:{user}}=await sb.auth.getUser();
+    if(user){
+      info=`<div class="r"><b>الحساب</b><span>${esc(user.email||"")}</span></div>`;
+      const {data:me}=await sb.from("staff").select("*").eq("auth_uid",user.id).maybeSingle();
+      if(me){
+        const rows=[["الاسم",me.full_name],["الكود",me.code],["الدور",me.role==="admin"?"أدمن":"محفظ"]];
+        if(me.whatsapp)rows.push(["واتساب",me.whatsapp]);
+        if(me.national_id)rows.push(["رقم الهوية",me.national_id]);
+        if(me.tajweed)rows.push(["التجويد",me.tajweed]);
+        info+=rows.map(([k,v])=>`<div class="r"><b>${k}</b><span>${esc(v??"—")}</span></div>`).join("");
+      }
+    }
+  }catch(e){}
+  $("profInfo").innerHTML=info||'<div class="r"><span>تعذر جلب البيانات</span></div>';
+  $("profModal").classList.remove("hide");
+}
+async function changePassword(){
+  const p1=$("profPass1").value,p2=$("profPass2").value,msg=$("profMsg");
+  if(p1.length<6){msg.textContent="كلمة المرور 6 أحرف على الأقل.";msg.className="prof-msg err";return;}
+  if(p1!==p2){msg.textContent="كلمتا المرور غير متطابقتين.";msg.className="prof-msg err";return;}
+  const {error}=await sb.auth.updateUser({password:p1});
+  if(error){msg.textContent="تعذر التغيير: "+error.message;msg.className="prof-msg err";return;}
+  msg.textContent="✓ تم تغيير كلمة المرور بنجاح."; msg.className="prof-msg ok";
+  $("profPass1").value="";$("profPass2").value="";
+}
+function toast(t,bad){const e=$("toast");e.textContent=t;e.className="show"+(bad?" bad":"");setTimeout(()=>e.className="",2600);}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+window.addEventListener("DOMContentLoaded",init);
+async function init(){
+  sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{storageKey:"numan-auth"}});
+  window.__numanSb=sb; try{window.__numanToast=toast;}catch(e){}
+  $("loginBtn").onclick=doLogin;
+  $("loginPass").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+  $("logoutBtn").onclick=async()=>{await sb.auth.signOut();location.reload();};
+  $("profBtn").onclick=openProfile; $("profSave").onclick=changePassword; $("profClose").onclick=()=>$("profModal").classList.add("hide");
+  $("scanBtn").onclick=openScanner; $("scanClose").onclick=closeScanner;
+  $("recCancel").onclick=closeRec; $("recSave").onclick=()=>saveRec(false); $("recSaveMore").onclick=()=>saveRec(true);
+  $("recTypes").querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick("recTypes",b));
+  $("recRates").querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick("recRates",b));
+  $("recSurah").innerHTML=SURAHS.map((n,i)=>`<option value="${i+1}">${i+1}. ${n}</option>`).join("");
+  $("edCancel").onclick=()=>$("editModal").classList.add("hide"); $("edSave").onclick=saveStudentEdit;
+  $("newReqBtn").onclick=()=>openReq(); $("reqSave").onclick=saveReq; $("reqCancel").onclick=closeReq;
+  $("reqKinds").querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick("reqKinds",b));
+  [["reqMoneyChk","reqMoneyWrap"],["reqBudgetChk","reqBudgetWrap"],["reqSuppliesChk","reqSuppliesWrap"]].forEach(([c,w])=>$(c).onchange=e=>$(w).classList.toggle("hide",!e.target.checked));
+  $("noteAdd").onclick=addNote; $("noteInput").addEventListener("keydown",e=>{if(e.key==="Enter")addNote();});
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));
+    document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("on",p.id==="pane-"+t.dataset.pane));
+  });
+  $("ntSend").onclick=sendNotif;
+  $("ntKind").onchange=()=>{ const m=$("ntKind").value==="finance_request"; $("ntMoneyWrap").classList.toggle("hide",!m); if(m)$("ntFinance").checked=true; };
+  $("datePick").value=SELDATE;
+  $("datePick").onchange=async()=>{SELDATE=$("datePick").value||SELDATE; await loadAll();};
+  const {data:{session}}=await sb.auth.getSession();
+  if(session) await enterApp(session);
+}
+function pick(group,btn){$(group).querySelectorAll(".opt").forEach(b=>b.classList.remove("on"));btn.classList.add("on");}
+
+async function doLogin(){
+  $("loginMsg").className="msg";
+  const code=$("loginCode").value.trim().toLowerCase(),pass=$("loginPass").value;
+  if(!code||!pass){return errLogin("اكتب الكود وكلمة المرور.");}
+  $("loginBtn").disabled=true;$("loginBtn").textContent="جار الدخول…";
+  const {data,error}=await sb.auth.signInWithPassword({email:code+DOMAIN,password:pass});
+  $("loginBtn").disabled=false;$("loginBtn").textContent="دخول";
+  if(error){return errLogin("الكود أو كلمة المرور غير صحيحة.");}
+  await enterApp(data.session);
+}
+function errLogin(t){$("loginMsg").textContent=t;$("loginMsg").className="msg err";}
+async function sendNotif(){
+  const kind=$("ntKind").value;
+  const title=$("ntTitle").value.trim(); if(!title)return toast("اكتب الموضوع",1);
+  const toAdmin=$("ntAdmin").checked, toFinance=$("ntFinance").checked, toAmir=$("ntAmir").checked;
+  if(!toAdmin&&!toFinance&&!toAmir)return toast("اختر جهة واحدة على الاقل",1);
+  let body=$("ntBody").value.trim();
+  const meta={from:MYNAME,halaqa_id:MYHALAQA};
+  if(kind==="finance_request"){
+    const amount=parseFloat($("ntAmount").value);
+    if(!amount||amount<=0)return toast("اكتب المبلغ المطلوب",1);
+    meta.amount=amount; meta.currency=$("ntCur").value;
+    body=(body?body+" — ":"")+"المبلغ المطلوب: "+amount+" "+$("ntCur").value;
+  }
+  const notif={kind,title:(MYNAME?MYNAME+": ":"")+title,body:body||null,
+    to_admin:toAdmin,to_finance:toFinance,to_amir_stage_id:toAmir?MYSTAGE:null,
+    meta,created_by:MYCODE};
+  const res=await window.NumanQueue.insertOrQueue(sb,"notifications",notif);
+  toast(res.online?"تم الإرسال":"حفظ محليا — سيرسل عند عودة الاتصال");
+  $("ntTitle").value=""; $("ntBody").value=""; $("ntAmount").value="";
+}
+async function enterApp(session){
+  let me=null;
+  if(navigator.onLine){
+    try{ const r=await sb.from("staff").select("code,full_name,halaqa_id").eq("auth_uid",session.user.id).maybeSingle();
+      me=r.data; if(me) localStorage.setItem("numan_me",JSON.stringify(me)); }catch(e){}
+  }
+  if(!me){ try{ me=JSON.parse(localStorage.getItem("numan_me")||"null"); }catch(e){} }
+  if(!me){errLogin("تحتاج اتصالا بالإنترنت أول مرة لتحميل بياناتك.");return await sb.auth.signOut();}
+  if(!me.halaqa_id){errLogin("لا توجد حلقة مرتبطة بحسابك — تواصل مع الإدارة.");return await sb.auth.signOut();}
+  MYCODE=me.code; MYHALAQA=me.halaqa_id; MYNAME=me.full_name; $("hWho").textContent=me.full_name;
+  $("loginScreen").classList.add("hide");$("app").classList.remove("hide");
+  let hq=null;
+  if(navigator.onLine){ try{ const r=await sb.from("halaqat").select("name,stage_id").eq("id",MYHALAQA).maybeSingle(); hq=r.data; if(hq) localStorage.setItem("numan_hq",JSON.stringify(hq)); }catch(e){} }
+  if(!hq){ try{ hq=JSON.parse(localStorage.getItem("numan_hq")||"null"); }catch(e){} }
+  $("hHalaqa").childNodes[0].nodeValue=(hq?hq.name:"حلقتي")+" "; MYSTAGE=hq?hq.stage_id:null;
+  await loadAll();
+  try{ await loadNotes(); }catch(e){} try{ await loadFacilities(); }catch(e){} try{ await loadRequests(); }catch(e){}
+}
+
+async function loadAll(){
+  let ok=false;
+  if(navigator.onLine){
+    try{
+      const st=await sb.from("students").select("code,full_name,national_id,birth_date,guardian_whatsapp,status_state,orphan").eq("halaqa_id",MYHALAQA).order("code");
+      if(st.error) throw st.error;
+      STUDENTS=st.data||[];
+      const dr=await sb.from("daily_record").select("*").eq("record_date",SELDATE);
+      DR={}; (dr.data||[]).forEach(r=>DR[r.student_code]={attendance:r.attendance,behavior:r.behavior});
+      const rc=await sb.from("recitation").select("*").eq("record_date",SELDATE).order("id");
+      RECS={}; (rc.data||[]).forEach(r=>{(RECS[r.student_code]=RECS[r.student_code]||[]).push(r);});
+      try{ const cf=await sb.from("app_settings").select("*"); SETTINGS={}; (cf.data||[]).forEach(x=>SETTINGS[x.key]=x.value); localStorage.setItem("numan_settings",JSON.stringify(SETTINGS)); }catch(e){}
+      await autoAbsent();
+      ok=true; OFFLINE_MODE=false; saveCache();
+    }catch(e){ ok=false; }
+  }
+  if(!ok){ OFFLINE_MODE=true; loadCache(); try{ SETTINGS=JSON.parse(localStorage.getItem("numan_settings")||"{}"); }catch(e){ SETTINGS={}; } }
+  showOfflineBanner();
+  renderList();
+}
+function computeStatus(checkinISO){
+  const start=(SETTINGS.session_start||"07:00"), grace=parseInt(SETTINGS.late_grace_min||"15",10)||15, absentMin=parseInt(SETTINGS.absent_after_min||"60",10)||60;
+  const t=new Date(checkinISO).toLocaleTimeString("en-GB",{hour12:false,timeZone:"Asia/Hebron"});
+  const [hh,mm]=t.split(":").map(Number), cur=hh*60+mm;
+  const [sh,sm]=start.split(":").map(Number), s=sh*60+sm;
+  if(cur > s+absentMin) return "absent";
+  if(cur > s+grace) return "late";
+  return "present";
+}
+function cacheKey(){ return "numan_tcache_"+MYHALAQA; }
+function saveCache(){ try{ localStorage.setItem(cacheKey(),JSON.stringify({d:SELDATE,students:STUDENTS,dr:DR,recs:RECS,at:Date.now()})); }catch(e){} }
+function loadCache(){
+  try{ const c=JSON.parse(localStorage.getItem(cacheKey())||"null");
+    if(c){ STUDENTS=c.students||[]; if(c.d===SELDATE){DR=c.dr||{};RECS=c.recs||{};} else {DR={};RECS={};} return true; }
+  }catch(e){}
+  STUDENTS=[];DR={};RECS={}; return false;
+}
+function showOfflineBanner(){
+  let b=document.getElementById("offBanner");
+  if(!b){ b=document.createElement("div"); b.id="offBanner"; b.style.cssText="position:sticky;top:0;z-index:60;background:#B5872B;color:#fff;text-align:center;padding:7px 10px;font-weight:700;font-size:12.5px;line-height:1.5"; document.body.insertBefore(b,document.body.firstChild); }
+  b.style.display=OFFLINE_MODE?"block":"none";
+  if(OFFLINE_MODE) b.textContent="📴 وضع عدم الاتصال — البيانات من آخر مزامنة، وتعديلاتك تحفظ محليا وترفع عند عودة النت";
+}
+async function autoAbsent(){
+  const today=new Date().toLocaleDateString("en-CA");
+  if(SELDATE!==today) return;                              // اليوم فقط
+  const {data:cfg}=await sb.from("app_settings").select("*");
+  const m={}; (cfg||[]).forEach(r=>m[r.key]=r.value);
+  const start=m.session_start||"07:00", absentMin=parseInt(m.absent_after_min||"60",10)||60;
+  const [sh,sm]=start.split(":").map(Number);
+  const nowL=new Date().toLocaleTimeString("en-GB",{hour12:false,timeZone:"Asia/Hebron"});
+  const [nh,nm]=nowL.split(":").map(Number);
+  if((nh*60+nm) < (sh*60+sm+absentMin)) return;            // لم يحن وقت الغياب التلقائي بعد
+  // استثن من سجل حضوره (حاضر/متأخر) في المسح المركزي
+  const {data:ca}=await sb.from("center_attendance").select("person_code,status").eq("attend_date",today);
+  const scanned=new Set((ca||[]).filter(r=>r.status&&r.status!=="absent").map(r=>r.person_code));
+  const toMark=[];
+  STUDENTS.forEach(s=>{ const d=DR[s.code]; if((!d||!d.attendance)&&!scanned.has(s.code)){ DR[s.code]=DR[s.code]||{}; DR[s.code].attendance="absent"; toMark.push(s.code);} });
+  for(const c of toMark){ await upsertDR(c); }
+}
+function renderList(){
+  if(!STUDENTS.length){$("list").innerHTML='<div class="empty">لا طلاب في حلقتك بعد.</div>';return;}
+  $("list").innerHTML=STUDENTS.map(s=>`<div class="srow" id="r_${s.code}">${rowHTML(s)}</div>`).join("");
+}
+function rowHTML(s){
+  const d=DR[s.code]||{}, recs=RECS[s.code]||[];
+  const attIc=d.attendance?`<span class="ic" style="color:var(--${ATT_SEM[d.attendance]})">${ATT_IC[d.attendance]}</span>`:'<span class="dot"></span>';
+  const behDot=`<span class="dot ${d.behavior?RATE_SEM[d.behavior]:''}"></span>`;
+  const recBadge=recs.length?`<span class="recpill">${recs.length} تسميع</span>`:'';
+  return `<div class="head" onclick="toggle('${s.code}')">
+      <div class="nm"><b>${esc(s.full_name)}</b><span class="code">${s.code}</span></div>
+      <div class="sum">${recBadge}${attIc}${behDot}<span class="chev">▼</span></div>
+    </div>
+    <div class="body">${bodyHTML(s)}</div>`;
+}
+function bodyHTML(s){
+  const d=DR[s.code]||{}, recs=RECS[s.code]||[];
+  const att=[['present','✓ حاضر'],['late','⏰ متأخر'],['absent','✗ غائب'],['excused','معذور']].map(([v,l])=>
+    `<button class="opt ${ATT_SEM[v]} ${d.attendance===v?'on':''}" style="${d.attendance===v?'':'opacity:.45;'}cursor:not-allowed" onclick="attLocked()">${l}</button>`).join("");
+  const beh=[['weak','ضعيف'],['medium','متوسط'],['excellent','ممتاز']].map(([v,l])=>
+    `<button class="opt ${RATE_SEM[v]} ${d.behavior===v?'on':''}" onclick="setBeh('${s.code}','${v}')">${l}</button>`).join("");
+  const rl=recs.map(r=>`<div class="rec"><div class="info"><div class="t">${TYPE_AR[r.type]||r.type} · ${SURAHS[r.surah-1]||('سورة '+r.surah)}</div>
+    <div class="d">${r.from_ayah?('من '+r.from_ayah+' إلى '+(r.to_ayah||'?')):'بدون تحديد آيات'}</div></div>
+    <span class="r ${RATE_SEM[r.rating]||''}">${RATE_AR[r.rating]||'—'}</span>
+    <button class="x" onclick="delRec(${r.id},'${s.code}')">×</button></div>`).join("")
+    || '<span style="color:var(--muted);font-size:13px">لا تسميع بعد.</span>';
+  return `<div class="lbl">الحضور <span style="font-weight:400;color:var(--muted);font-size:11.5px">(بالمسح فقط)</span></div><div class="seg">${att}</div>
+    <div class="lbl">السلوك</div><div class="seg">${beh}</div>
+    <div class="lbl">التسميع</div><div class="recs">${rl}</div>
+    <div class="twobtn"><button class="addrec" onclick="openRec('${s.code}')">+ إضافة تسميع</button>
+    <button class="editbtn" onclick="openStudentEdit('${s.code}')">تعديل البيانات</button></div>`;
+}
+function toggle(code){ $("r_"+code).classList.toggle("open"); }
+function renderOne(code){
+  const s=STUDENTS.find(x=>x.code===code), el=$("r_"+code);
+  if(s&&el){const wasOpen=el.classList.contains("open"); el.innerHTML=rowHTML(s); if(wasOpen)el.classList.add("open");}
+}
+
+/* حضور + سلوك */
+async function upsertDR(code){
+  const r=DR[code]||{};
+  const payload={student_code:code,record_date:SELDATE,attendance:r.attendance||null,behavior:r.behavior||null,recorded_by:MYCODE,updated_at:new Date().toISOString()};
+  saveCache();
+  if(navigator.onLine){
+    try{ const {error}=await sb.from("daily_record").upsert(payload,{onConflict:"student_code,record_date"}); if(!error) return; }catch(e){}
+  }
+  window.NumanQueue.addOp({kind:"dr",payload});
+}
+function attLocked(){ toast("الحضور يسجل بالمسح فقط — لا يمكن تعيينه يدويا",1); }
+async function setBeh(code,v){DR[code]=DR[code]||{};DR[code].behavior=(DR[code].behavior===v?null:v);renderOne(code);await upsertDR(code);}
+
+/* تسميع */
+let recCode=null;
+function openRec(code){
+  recCode=code; const s=STUDENTS.find(x=>x.code===code);
+  $("recWho").textContent=(s?s.full_name:code)+" — "+code;
+  $("recTypes").querySelectorAll(".opt").forEach(b=>b.classList.remove("on"));
+  $("recRates").querySelectorAll(".opt").forEach(b=>b.classList.remove("on"));
+  $("recSurah").value="1";$("recFrom").value="";$("recTo").value="";
+  $("recModal").classList.remove("hide");
+}
+function closeRec(){$("recModal").classList.add("hide");recCode=null;}
+async function saveRec(more){
+  const type=($("recTypes").querySelector(".on")||{}).dataset?.v;
+  const rating=($("recRates").querySelector(".on")||{}).dataset?.v;
+  if(!type) return toast("اختر نوع التسميع",1);
+  if(!rating) return toast("اختر التقدير",1);
+  const base={student_code:recCode,record_date:SELDATE,type,surah:parseInt($("recSurah").value),
+    from_ayah:$("recFrom").value?parseInt($("recFrom").value):null,
+    to_ayah:$("recTo").value?parseInt($("recTo").value):null,rating,recorded_by:MYCODE};
+  if(navigator.onLine){
+    try{ const {data,error}=await sb.from("recitation").insert(base).select().single();
+      if(!error){ (RECS[recCode]=RECS[recCode]||[]).push(data); renderOne(recCode); saveCache(); toast("أضيف التسميع"); return afterRec(more); }
+    }catch(e){}
+  }
+  const tmp=Object.assign({id:"tmp_"+Date.now()+"_"+Math.floor(Math.random()*1e4)},base);
+  (RECS[recCode]=RECS[recCode]||[]).push(tmp); renderOne(recCode); saveCache();
+  window.NumanQueue.addOp({kind:"rec_add",tmpId:tmp.id,payload:base});
+  toast("أضيف محليا — سيرفع عند عودة الاتصال"); afterRec(more);
+}
+function afterRec(more){
+  if(more){$("recTypes").querySelectorAll(".opt").forEach(b=>b.classList.remove("on"));$("recRates").querySelectorAll(".opt").forEach(b=>b.classList.remove("on"));$("recFrom").value="";$("recTo").value="";}
+  else closeRec();
+}
+async function delRec(id,code){
+  if(!confirm("حذف هذا التسميع؟"))return;
+  if(String(id).startsWith("tmp_")){
+    RECS[code]=(RECS[code]||[]).filter(r=>String(r.id)!==String(id)); renderOne(code); saveCache();
+    window.NumanQueue.removeOp(o=>o.kind==="rec_add"&&o.tmpId===id);
+    return toast("حذف");
+  }
+  if(navigator.onLine){
+    try{ const {error}=await sb.from("recitation").delete().eq("id",id);
+      if(!error){ RECS[code]=(RECS[code]||[]).filter(r=>r.id!==id); renderOne(code); saveCache(); return toast("حذف"); }
+    }catch(e){}
+  }
+  RECS[code]=(RECS[code]||[]).filter(r=>String(r.id)!==String(id)); renderOne(code); saveCache();
+  window.NumanQueue.addOp({kind:"rec_del",id});
+  toast("حذف محليا — سيرفع عند عودة الاتصال");
+}
+
+/* تعديل بيانات الطالب */
+let edCode=null;
+function openStudentEdit(code){
+  const s=STUDENTS.find(x=>x.code===code); if(!s)return; edCode=code;
+  $("edWho").textContent=s.full_name+" — "+code;
+  $("edName").value=s.full_name||""; $("edNid").value=s.national_id||""; $("edDob").value=s.birth_date||"";
+  $("edWa").value=s.guardian_whatsapp||""; $("edStatus").value=s.status_state||"committed"; $("edOrphan").value=s.orphan||"non_orphan";
+  $("editModal").classList.remove("hide");
+}
+async function saveStudentEdit(){
+  const name=$("edName").value.trim(); if(!name)return toast("الاسم مطلوب",1);
+  const rec={full_name:name,national_id:$("edNid").value.trim()||null,birth_date:$("edDob").value||null,
+    guardian_whatsapp:$("edWa").value.trim()||null,status_state:$("edStatus").value,orphan:$("edOrphan").value};
+  const {error}=await sb.from("students").update(rec).eq("code",edCode);
+  if(error)return toast("تعذر الحفظ: "+error.message,1);
+  const s=STUDENTS.find(x=>x.code===edCode); Object.assign(s,rec);
+  $("editModal").classList.add("hide"); renderOne(edCode); toast("حفظت البيانات");
+}
+
+/* ملاحظات */
+async function loadNotes(){
+  const {data}=await sb.from("notes").select("*").eq("author_code",MYCODE).order("id",{ascending:false});
+  const list=data||[];
+  $("notesList").innerHTML=list.length?list.map(n=>`<div class="note ${n.done?'done':''}">
+    <input type="checkbox" ${n.done?'checked':''} onchange="toggleNote(${n.id},this.checked)">
+    <div class="c">${esc(n.content)}<div class="when">${new Date(n.created_at).toLocaleString('ar-EG')}</div></div>
+    <button class="x" onclick="delNote(${n.id})">×</button></div>`).join("")
+    : '<div class="empty">لا ملاحظات بعد.</div>';
+}
+async function addNote(){
+  const c=$("noteInput").value.trim(); if(!c)return;
+  const {error}=await sb.from("notes").insert({author_code:MYCODE,content:c});
+  if(error)return toast("تعذر الحفظ: "+error.message,1);
+  $("noteInput").value=""; await loadNotes();
+}
+async function toggleNote(id,done){ await sb.from("notes").update({done}).eq("id",id); await loadNotes(); }
+async function delNote(id){ if(!confirm("حذف الملاحظة؟"))return; await sb.from("notes").delete().eq("id",id); await loadNotes(); }
+
+/* المسح المركزي (أي شخص) */
+let scanner=null,lastCode="",lastT=0;
+function loadScriptOnce(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>{s.remove();rej(new Error(src));};document.head.appendChild(s);});}
+async function ensureScanner(){
+  if(window.Html5Qrcode)return true;
+  const cdns=[
+    "lib/html5-qrcode.min.js",
+    "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js",
+    "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"
+  ];
+  for(const u of cdns){ try{ await loadScriptOnce(u); if(window.Html5Qrcode)return true; }catch(e){} }
+  return !!window.Html5Qrcode;
+}
+function showScanRes(t,ok){const r=$("scanRes");if(!r)return;r.textContent=t;r.style.display="block";r.style.background=ok?"#E6F1EA":"#FBE9E9";r.style.color=ok?"#1E7A48":"#B23B3B";}
+async function openScanner(){
+  $("scanModal").classList.add("show"); $("scanRes").style.display="none";
+  const ok=await ensureScanner();
+  if(!ok){ showScanRes("تعذر تحميل الماسح — حدث الصفحة أو جرب اتصالا آخر",false); return; }
+  scanner=new Html5Qrcode("scanReader");
+  try{ await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:220,height:220}},onScan,()=>{}); }
+  catch(e){ showScanRes("تعذر فتح الكاميرا — تأكد أن الصفحة HTTPS وسمحت بالكاميرا",false); }
+}
+async function onScan(text){
+  const code=String(text).trim().toUpperCase(); const now=Date.now();
+  if(code===lastCode&&now-lastT<2500)return; lastCode=code;lastT=now;
+  const checkin=new Date().toISOString();
+  let res; try{ res=await window.NumanQueue.record(sb,code,SELDATE,checkin); }catch(e){ res={online:false}; }
+  if(!res.online){
+    if(STUDENTS.find(s=>s.code===code)){
+      const status=computeStatus(checkin); DR[code]=DR[code]||{}; DR[code].attendance=status; renderOne(code); saveCache();
+      window.NumanQueue.addOp({kind:"dr",payload:{student_code:code,record_date:SELDATE,attendance:status,behavior:(DR[code]||{}).behavior||null,recorded_by:MYCODE,updated_at:new Date().toISOString()}});
+      showScanRes((status==="late"?"⏰ متأخر: ":status==="absent"?"✗ غائب: ":"✓ حاضر: ")+code+" — سجل محليا", status!=="absent");
+    } else { showScanRes("✓ سجل محليا — سيرفع عند عودة الاتصال", true); }
+    return;
+  }
+  const data=res.data;
+  if(!data||!data.length){ showScanRes(code+" غير موجود في النظام",false); return; }
+  const r=data[0];
+  const who=(r.kind==="staff"?"المحفظ ":"")+r.full_name;
+  showScanRes(r.status==="late" ? ("⏰ متأخر: "+who) : ("✓ حاضر: "+who), true);
+  // لو الطالب من حلقتي: علمه (حاضر/متأخر) في سجل الحلقة أيضا
+  if(STUDENTS.find(s=>s.code===code)){DR[code]=DR[code]||{};DR[code].attendance=(r.status==="late"?"late":"present");renderOne(code);upsertDR(code);}
+}
+async function closeScanner(){
+  if(scanner){try{await scanner.stop();scanner.clear();}catch(e){}scanner=null;}
+  $("scanModal").classList.remove("show");
+}
+
+/* الأنشطة — طلبات المحفظ */
+async function loadFacilities(){
+  const {data}=await sb.from("facilities").select("*").eq("active",true).order("id");
+  FACILITIES=data||[];
+  $("reqFac").innerHTML='<option value="">— اختر —</option>'+FACILITIES.map(f=>`<option value="${f.id}">${esc(f.name)}</option>`).join("");
+}
+function facName(id){const f=FACILITIES.find(x=>x.id===id);return f?f.name:"—";}
+async function loadRequests(){
+  const {data}=await sb.from("activity_requests").select("*").eq("requested_by",MYCODE).order("id",{ascending:false});
+  REQS=data||[]; renderRequests();
+}
+function reqLines(r){
+  const tm=(r.start_time?r.start_time.slice(0,5):"")+(r.end_time?" - "+r.end_time.slice(0,5):"");
+  const L=[];
+  L.push(`${r.weekday?esc(r.weekday)+" · ":""}${r.activity_date||""}${tm?" · "+tm:""}`);
+  if(r.stage) L.push("المرحلة: "+esc(r.stage));
+  if(r.student_count!=null) L.push("عدد الطلاب: "+r.student_count);
+  if(r.participants) L.push("مشاركون: "+esc(r.participants));
+  if(r.bring_items) L.push("سيحضر: "+esc(r.bring_items));
+  if(r.collected_money) L.push("جمع مال"+(r.money_details?": "+esc(r.money_details):""));
+  if(r.need_budget) L.push("يحتاج ميزانية"+(r.budget_details?": "+esc(r.budget_details):""));
+  if(r.need_supplies) L.push("يحتاج أغراضا"+(r.supplies_details?": "+esc(r.supplies_details):""));
+  if(r.details) L.push(esc(r.details));
+  return L.join("<br>");
+}
+function renderRequests(){
+  $("reqList").innerHTML=REQS.length?REQS.map(r=>{
+    const note=r.decision_note?`<div class="notebox"><b>ملاحظة القرار:</b> ${esc(r.decision_note)}</div>`:"";
+    const edit=r.status!=="approved"?`<button class="reqedit" onclick="openReq(${r.id})">${r.status==="rejected"?"تعديل وإعادة التقديم":"تعديل"}</button>`:"";
+    return `<div class="reqcard"><div class="top"><span class="ttl">${esc(KIND_AR[r.kind]||r.kind)} · ${esc(facName(r.facility_id))}</span><span class="stbadge ${r.status}">${REQ_ST[r.status]}</span></div>
+      <div class="det">${reqLines(r)}</div>${note}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${edit}<button class="reqedit" style="background:var(--bad-bg);color:var(--bad)" onclick="delReq(${r.id})">إلغاء الطلب</button></div></div>`;
+  }).join(""):'<div class="empty">لا طلبات بعد. اضغط «+ طلب نشاط جديد».</div>';
+}
+async function delReq(id){
+  if(!confirm("إلغاء هذا الطلب نهائيا؟"))return;
+  const {error}=await sb.from("activity_requests").delete().eq("id",id);
+  if(error)return toast("تعذر الإلغاء: "+error.message,1);
+  REQS=REQS.filter(x=>x.id!==id); renderRequests(); toast("ألغي الطلب");
+}
+function setTgl(chk,wrap,on){$(chk).checked=!!on;$(wrap).classList.toggle("hide",!on);}
+function openReq(id){
+  reqEdit=id||null; const r=id?REQS.find(x=>x.id===id):null;
+  $("reqTitle").textContent=r?"تعديل الطلب":"طلب نشاط جديد";
+  $("reqKinds").querySelectorAll(".opt").forEach(b=>b.classList.toggle("on", !!r&&b.dataset.v===r.kind));
+  $("reqFac").value=r?(r.facility_id||""):"";
+  $("reqDay").value=r?(r.weekday||""):"";
+  $("reqDate").value=r?(r.activity_date||""):SELDATE;
+  $("reqTime").value=r?(r.time_text||""):"";
+  $("reqCount").value=r&&r.student_count!=null?r.student_count:"";
+  $("reqParts").value=r?(r.participants||""):"";
+  $("reqBring").value=r?(r.bring_items||""):"";
+  setTgl("reqMoneyChk","reqMoneyWrap",r&&r.collected_money); $("reqMoney").value=r?(r.money_details||""):"";
+  setTgl("reqBudgetChk","reqBudgetWrap",r&&r.need_budget); $("reqBudget").value=r?(r.budget_details||""):"";
+  setTgl("reqSuppliesChk","reqSuppliesWrap",r&&r.need_supplies); $("reqSupplies").value=r?(r.supplies_details||""):"";
+  $("reqDetails").value=r?(r.details||""):"";
+  $("reqModal").classList.remove("hide");
+}
+function closeReq(){$("reqModal").classList.add("hide");reqEdit=null;}
+async function saveReq(){
+  const kind=($("reqKinds").querySelector(".on")||{}).dataset?.v;
+  const fac=$("reqFac").value, date=$("reqDate").value;
+  if(!kind)return toast("اختر نوع النشاط",1);
+  if(!fac)return toast("اختر المكان",1);
+  if(!date)return toast("اختر التاريخ",1);
+  const rec={kind,facility_id:parseInt(fac),stage:MYSTAGE||null,activity_date:date,
+    weekday:$("reqDay").value||null,
+    time_text:$("reqTime").value.trim()||null,start_time:null,end_time:null,
+    student_count:$("reqCount").value?parseInt($("reqCount").value):null,
+    participants:$("reqParts").value.trim()||null,
+    bring_items:$("reqBring").value.trim()||null,
+    collected_money:$("reqMoneyChk").checked, money_details:$("reqMoneyChk").checked?($("reqMoney").value.trim()||null):null,
+    need_budget:$("reqBudgetChk").checked, budget_details:$("reqBudgetChk").checked?($("reqBudget").value.trim()||null):null,
+    need_supplies:$("reqSuppliesChk").checked, supplies_details:$("reqSuppliesChk").checked?($("reqSupplies").value.trim()||null):null,
+    details:$("reqDetails").value.trim()||null};
+  let error;
+  if(reqEdit){rec.status="pending";rec.decision_note=null;({error}=await sb.from("activity_requests").update(rec).eq("id",reqEdit));}
+  else{rec.requested_by=MYCODE;rec.halaqa_id=MYHALAQA;({error}=await sb.from("activity_requests").insert(rec));}
+  if(error)return toast("تعذر الإرسال: "+error.message,1);
+  closeReq(); toast(reqEdit?"أعيد تقديم الطلب":"أرسل الطلب"); await loadRequests();
+}
+
+/* زر «تغيير البوابة» — يظهر فقط لمن له أكثر من بوابة (#7) */
+(function(){let n=0;const t=setInterval(async()=>{
+  if(typeof sb==="undefined"||!sb){if(++n>50)clearInterval(t);return;}
+  clearInterval(t);
+  try{const r=await sb.auth.getSession();const session=r&&r.data&&r.data.session;if(!session)return;
+    const {data:me}=await sb.from("staff").select("code,role,halaqa_id").eq("auth_uid",session.user.id).maybeSingle();if(!me)return;
+    let c=(me.role==="admin"?1:0)+(me.halaqa_id?1:0);const {data:_st}=await sb.from("stages").select("id").eq("amir_code",me.code);c+=(_st||[]).length;
+    const {data:m}=await sb.from("committee_members").select("id").eq("staff_code",me.code);c+=(m||[]).length;
+    const b=document.getElementById("switchPortalBtn");if(b&&c>1)b.classList.remove("hide");
+  }catch(e){}
+},150);})();
+
+</script>
+</body>
+</html>

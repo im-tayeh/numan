@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>مركز النعمان بن مقرن · الإدارة</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16294D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="النعمان">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1F3A6B; --navy-deep:#16294D; --navy-soft:#E8EDF5;
+    --gold:#C9A24B; --gold-soft:#F4EEDD;
+    --bg:#F4F6F9; --surface:#FFFFFF; --ink:#1E2733; --muted:#66707D;
+    --line:#E2E5EB; --danger:#B23B3B;
+    --radius:14px; --shadow:0 1px 3px rgba(31,58,107,.05),0 10px 26px rgba(31,58,107,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:16px;min-height:100vh}
+  h1,h2,h3{margin:0;font-weight:600}
+  button{font-family:inherit;cursor:pointer;border:none}
+  input,select,textarea{font-family:inherit;font-size:16px;color:var(--ink)}
+
+  .topbar{background:var(--navy-deep);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:20;box-shadow:0 2px 14px rgba(22,41,77,.25)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{height:48px;width:auto;display:block;background:#fff;border-radius:8px;padding:3px}
+  .brand h1{font-size:18px;color:#fff;font-weight:600;line-height:1.25}
+  .brand small{display:block;font-size:12px;color:#b9c6df;font-weight:400}
+  .who{display:flex;align-items:center;gap:12px;font-size:14px;color:#cdd8ec;min-width:0}
+  .topbar{flex-wrap:nowrap}
+  #whoName{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw;display:inline-block;vertical-align:middle}
+  .btn-ghost{background:rgba(255,255,255,.13);color:#fff;padding:7px 14px;border-radius:10px;font-size:14px}
+  .btn-ghost:hover{background:rgba(255,255,255,.24)}
+
+  .stats{max-width:1100px;margin:0 auto;padding:14px 20px 0;display:flex;gap:10px;flex-wrap:wrap}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 18px;display:flex;align-items:baseline;gap:8px;box-shadow:var(--shadow)}
+  .stat b{font-size:22px;color:var(--navy-deep);font-weight:700}
+  .stat span{font-size:13px;color:var(--muted)}
+
+  .tabs{display:flex;gap:6px;padding:14px 20px 0;max-width:1100px;margin:0 auto;flex-wrap:wrap}
+  .tab{background:transparent;color:var(--muted);padding:10px 18px;border-radius:10px 10px 0 0;font-weight:500;font-size:15px}
+  .tab.active{background:var(--surface);color:var(--navy-deep);box-shadow:0 -2px 8px rgba(31,58,107,.05)}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px 60px}
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-top:16px}
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .card h2{font-size:18px;color:var(--navy-deep)}
+  .card .hint{color:var(--muted);font-size:14px;margin:4px 0 16px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:14px;font-weight:500;margin-bottom:6px}
+  .field .opt{color:var(--muted);font-weight:400;font-size:13px}
+  input[type=text],input[type=date],input[type=number],input[type=password],select,textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fbfcfe;transition:border-color .15s,box-shadow .15s}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(31,58,107,.13)}
+  textarea{resize:vertical;min-height:120px;line-height:1.9}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:640px){.grid,.grid3{grid-template-columns:1fr}}
+  .chk{display:flex;align-items:center;gap:9px;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer}
+  .chk input{width:18px;height:18px;accent-color:var(--navy);cursor:pointer}
+  .btn{background:var(--navy);color:#fff;padding:11px 22px;border-radius:10px;font-weight:600;font-size:15px}
+  .btn:hover{background:var(--navy-deep)}
+  .btn:disabled{opacity:.55;cursor:default}
+  .btn-sec{background:var(--navy-soft);color:var(--navy-deep)}
+  .btn-sec:hover{background:#dde6f2}
+  .btn-gold{background:var(--gold-soft);color:#8a6d2a;padding:9px 16px;border-radius:10px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:7px}
+  .btn-gold:hover{background:#efe4c8}
+
+  .tablewrap{overflow-x:auto;margin-top:10px}
+  .tbl{width:100%;border-collapse:collapse;font-size:14px;white-space:nowrap}
+  .tbl th{text-align:right;color:var(--muted);font-weight:500;font-size:12px;padding:8px 10px;border-bottom:2px solid var(--line)}
+  .tbl td{padding:9px 10px;border-bottom:1px solid var(--line)}
+  .tbl tr:hover td{background:#f7f9fc}
+  .code{direction:ltr;display:inline-block;background:var(--navy-soft);color:var(--navy-deep);padding:2px 9px;border-radius:7px;font-weight:600;font-size:13px}
+  .pill{font-size:12px;padding:2px 10px;border-radius:20px;background:var(--gold-soft);color:#8a6d2a}
+  .tag{font-size:12px;padding:2px 9px;border-radius:7px}
+  .tag.ok{background:#e6f1ea;color:#1e6b46}.tag.no{background:#fbe9e9;color:#a23a3a}
+  .actions{display:flex;gap:6px;justify-content:flex-start}
+  .del{background:transparent;color:var(--danger);font-size:13px;padding:5px 9px;border-radius:8px}
+  .del:hover{background:#fbeeee}
+  .qrbtn{background:var(--gold-soft);color:#8a6d2a;font-size:13px;padding:5px 10px;border-radius:8px;font-weight:600}
+  .qrbtn:hover{background:#efe4c8}
+  .mvbtn{background:var(--navy-soft);color:var(--navy-deep);font-size:13px;padding:5px 10px;border-radius:8px;font-weight:600}
+  .mvbtn:hover{background:#dde6f2}
+  .muted-row td{color:var(--muted);text-align:center;padding:26px;white-space:normal}
+
+  .login-screen{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .login-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:34px 30px;width:100%;max-width:380px;text-align:center}
+  .login-card img{height:110px;width:auto;margin:0 auto 12px;display:block}
+  .login-card h1{font-size:21px;color:var(--navy-deep)}
+  .login-card p{color:var(--muted);font-size:14px;margin:4px 0 22px}
+  .login-card .field{text-align:right}
+  .login-card .btn{width:100%;margin-top:6px}
+
+  .msg{font-size:14px;margin-top:12px;padding:10px 12px;border-radius:9px;display:none}
+  .msg.err{display:block;background:#fbeeee;color:var(--danger)}
+  .msg.ok{display:block;background:var(--navy-soft);color:var(--navy-deep)}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(22,41,77,.45);display:grid;place-items:center;z-index:60;padding:20px}
+  .modal{background:var(--surface);border-radius:16px;padding:24px;width:100%;max-width:380px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+  .modal h3{font-size:18px;color:var(--navy-deep)}
+
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:70}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+  #toast.bad{background:var(--danger)}
+  .hide{display:none !important}
+  .prof-bg{position:fixed;inset:0;background:rgba(22,41,77,.5);display:grid;place-items:center;z-index:90;padding:20px}
+  .prof-card{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  .prof-card h3{font-size:18px;color:#16294D;margin:0 0 12px}.prof-card h4{font-size:14px;color:#16294D;margin:0 0 10px}
+  .prof-info{display:flex;flex-direction:column;gap:7px;font-size:14px}
+  .prof-info .r{display:flex;justify-content:space-between;gap:10px}.prof-info .r b{color:#16294D}.prof-info .r span{color:#66707D}
+  .prof-hr{border:none;border-top:1px solid #E6E9EF;margin:16px 0}
+  .prof-card input{width:100%;padding:11px 12px;border:1px solid #E6E9EF;border-radius:10px;background:#fbfcfe;margin-bottom:10px;font-size:16px;font-family:inherit;box-sizing:border-box}
+  .prof-card input:focus{outline:none;border-color:#1F3A6B;box-shadow:0 0 0 3px rgba(31,58,107,.13)}
+  .prof-btns{display:flex;gap:8px;margin-top:4px}
+  .pbtn{flex:1;padding:12px;border-radius:11px;font-weight:600;font-size:15px;border:none;cursor:pointer;font-family:inherit}
+  .pbtn.primary{background:#1F3A6B;color:#fff}.pbtn.sec{background:#E8EDF5;color:#16294D}
+  .prof-msg{font-size:13px;margin-top:10px;padding:9px;border-radius:8px;display:none}
+  .prof-msg.ok{display:block;background:#E6F1EA;color:#1E7A48}.prof-msg.err{display:block;background:#FBE9E9;color:#B23B3B}
+  .prof-btn{background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:9px;font-size:16px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+  .taskrow{background:#fbfcfe;border:1px solid #E6E9EF;border-radius:11px;padding:11px;margin-bottom:9px}
+  .tsub{font-size:13px;color:#66707D;margin-top:4px}
+  .trep{font-size:13px;background:#fff;border:1px solid #E6E9EF;border-radius:8px;padding:7px 9px;margin-top:7px}
+  .tpill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .tpill.good{background:#E6F1EA;color:#1E7A48}.tpill.mid{background:#F6EEDA;color:#B5872B}.tpill.bad{background:#FBE9E9;color:#B23B3B}
+
+img[src="logo.png"]{background:#fff;padding:3px;box-sizing:border-box}
+</style>
+<style id="numanPolish">
+/* ===== طبقة التحسين البصري الموحدة (النعمان) ===== */
+*{-webkit-tap-highlight-color:transparent}
+::selection{background:var(--gold-soft);color:var(--navy-deep)}
+html{scrollbar-width:thin;scrollbar-color:#cfd6e2 transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#cfd6e2;border-radius:20px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:#b6c0d2;background-clip:padding-box}
+/* الإدخالات: أنظف، أوضح، أكثر تفاعلا */
+.field input:not([type=checkbox]):not([type=radio]),
+.field select,.field textarea,.login-card input{
+  border:1.5px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+  box-shadow:inset 0 1px 2px rgba(31,58,107,.035);
+}
+.field input::placeholder,.field textarea::placeholder,.login-card input::placeholder{color:#9aa3b0}
+.field input:not([type=checkbox]):not([type=radio]):hover,
+.field select:hover,.field textarea:hover,.login-card input:hover{border-color:#bcc6d6;background:#fcfdff}
+.field input:not([type=checkbox]):not([type=radio]):focus,
+.field select:focus,.field textarea:focus,.login-card input:focus{
+  outline:none;border-color:var(--navy);background:var(--surface);
+  box-shadow:0 0 0 3.5px rgba(31,58,107,.14),0 2px 6px rgba(31,58,107,.08);
+}
+.field select{cursor:pointer}
+/* الأزرار: عمق وتفاعل لطيف */
+.btn,.lbtn{transition:filter .18s ease,box-shadow .2s ease,transform .12s ease}
+.btn:hover,.lbtn:hover{filter:brightness(1.07);box-shadow:0 5px 16px rgba(31,58,107,.20)}
+.btn:active,.lbtn:active{transform:translateY(1px);box-shadow:0 2px 8px rgba(31,58,107,.16)}
+/* تركيز ذهبي واضح لإمكانية الوصول */
+a:focus-visible,button:focus-visible,.tab:focus-visible,[tabindex]:focus-visible{
+  outline:2.5px solid var(--gold);outline-offset:2px;border-radius:8px;
+}
+/* احترام تقليل الحركة */
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important;scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <img src="logo.png" alt="مركز النعمان بن مقرن" />
+    <h1>لوحة الإدارة</h1>
+    <p>مركز النعمان بن مقرن — لتعليم وتحفيظ القرآن والسنة</p>
+    <div class="field"><label>اسم المستخدم</label><input type="text" id="loginCode" placeholder="مثال: SD551" autocomplete="username" /></div>
+    <div class="field"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" /></div>
+    <button class="btn" id="loginBtn">دخول</button>
+    <div class="msg" id="loginMsg"></div>
+    <a href="index.html" style="display:block;text-align:center;margin-top:14px;color:var(--navy);font-size:13.5px;font-weight:600;text-decoration:none">↪ الدخول الموحّد لكل البوابات</a>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hide">
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo.png" alt="مركز النعمان بن مقرن" />
+      <div><h1>مركز النعمان بن مقرن<small>نظام الإدارة</small></h1></div>
+    </div>
+    <div class="who"><span id="whoName"></span><button class="prof-btn" id="profBtn" title="الملف الشخصي">⚙️</button><button id="switchPortalBtn" class="btn-ghost hide" onclick="location.href='index.html'" title="تغيير البوابة" style="margin-inline-end:6px">البوابات</button><button class="btn-ghost" id="logoutBtn">خروج</button></div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b id="cHalaqat">0</b><span>حلقة</span></div>
+    <div class="stat"><b id="cStaff">0</b><span title="يشمل كل العاملين">محفظ</span></div>
+    <div class="stat"><b id="cStudents">0</b><span>طالب</span></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="halaqat">الحلقات</button>
+    <button class="tab" data-tab="staff">المحفظين</button>
+    <button class="tab" data-tab="students">الطلاب</button>
+    <button class="tab" data-tab="committees">اللجان</button>
+    <button class="tab" data-tab="attendance">الحضور</button>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- الحلقات -->
+    <section class="panel active" id="panel-halaqat">
+      <div class="card">
+        <h2>إضافة حلقة</h2>
+        <div class="grid">
+          <div class="field"><label>اسم الحلقة</label><input type="text" id="hName" placeholder="اسم الحلقة" /></div>
+          <div class="field"><label>المرحلة</label><select id="hStage"><option value="">— اختر —</option></select></div>
+        </div>
+        <button class="btn" id="hAdd">حفظ الحلقة</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>الحلقات المسجلة</h2></div>
+        <div class="field" style="max-width:260px"><label>تصفية بالمرحلة</label><select id="hFilter"><option value="">كل المراحل</option></select></div>
+        <div class="tablewrap"><table class="tbl"><thead><tr><th>الاسم</th><th>المرحلة</th><th>المحفظ</th><th></th></tr></thead>
+          <tbody id="hList"><tr class="muted-row"><td colspan="4">لا حلقات بعد.</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- المحفظين -->
+    <section class="panel" id="panel-staff">
+      <div class="card">
+        <h2>إضافة محفظ</h2>
+        <div class="grid3">
+          <div class="field"><label>الاسم الرباعي</label><input type="text" id="sName" /></div>
+          <div class="field"><label>الدور</label><select id="sRole"><option value="teacher">محفظ</option><option value="admin">أدمن</option></select></div>
+          <div class="field"><label>المرحلة</label><select id="sStage"><option value="">— بدون —</option></select></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>الحلقة</label><select id="sHalaqa"><option value="">— بدون —</option></select></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>رقم الهوية</label><input type="text" id="sNid" placeholder="رقم الهوية" /></div>
+          <div class="field"><label>تاريخ الميلاد</label><input type="date" id="sDob" /></div>
+          <div class="field"><label>واتساب <span class="opt">(مع المقدمة)</span></label><input type="text" id="sWa" placeholder="00970XXXXXXXXX" /></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>الحفظ <span class="opt">(عدد الأجزاء)</span></label><input type="number" id="sHifdh" min="0" max="30" placeholder="مثال: 15" /></div>
+          <div class="field"><label>التجويد</label><select id="sTajweed"><option value="">— اختر —</option><option value="tahiliyya">تأهيلية</option><option value="ulya">عليا</option><option value="tahil_sanad">تأهيل سند</option><option value="sanad">سند</option></select></div>
+          <div class="field"><label>الحالة</label><select id="sStatus"><option value="committed">ملتزم</option><option value="withdrawn">منقطع</option></select></div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>نوع الحساب البنكي</label><select id="sBankType"><option value="">— اختر —</option><option value="palpay">بال باي</option><option value="jawwalpay">جوال باي</option><option value="bank_of_palestine">بنك فلسطين</option></select></div>
+          <div class="field"><label>رقم الحساب البنكي</label><input type="text" id="sBankAcc" placeholder="رقم الحساب" /></div>
+        </div>
+        <button class="btn" id="sAdd">إضافة محفظ</button>
+        <div class="msg" id="sMsg"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>المحفظون</h2><button class="btn-gold" id="expStaff">⬇ تصدير Excel</button></div>
+        <div class="tablewrap"><table class="tbl"><thead><tr>
+          <th>الكود</th><th>الاسم</th><th>الدور</th><th>الحلقة</th><th>رقم الهوية</th><th>الميلاد</th><th>واتساب</th><th>الحفظ</th><th>التجويد</th><th>الحساب</th><th>رقم الحساب</th><th>الحالة</th><th></th>
+        </tr></thead>
+          <tbody id="sList"><tr class="muted-row"><td colspan="13">لا محفظين بعد.</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- الطلاب -->
+    <section class="panel" id="panel-students">
+      <div class="card">
+        <h2>إضافة طالب</h2>
+        <p class="hint">الاسم والحلقة إلزاميان، والباقي اختياري. للإدخال السريع استخدم «الإضافة الجماعية».</p>
+        <div class="grid">
+          <div class="field"><label>الاسم الرباعي</label><input type="text" id="stName" placeholder="اسم الطالب" /></div>
+          <div class="field"><label>المرحلة</label><select id="stAddStage"><option value="">— اختر —</option></select></div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>الحلقة</label><select id="stHalaqa"><option value="">— اختر —</option></select></div>
+        </div>
+        <div class="grid3">
+          <div class="field"><label>رقم الهوية</label><input type="text" id="stNid" placeholder="رقم الهوية" /></div>
+          <div class="field"><label>تاريخ الميلاد</label><input type="date" id="stDob" /></div>
+          <div class="field"><label>واتساب ولي الأمر <span class="opt">(مع المقدمة)</span></label><input type="text" id="stWa" placeholder="00970XXXXXXXXX" /></div>
+        </div>
+        <div class="grid">
+          <div class="field"><label>الحالة</label><select id="stStatus"><option value="committed">ملتزم</option><option value="withdrawn">منقطع</option></select></div>
+          <div class="field"><label>الحالة الاجتماعية</label><select id="stOrphan"><option value="non_orphan">غير يتيم</option><option value="orphan">يتيم</option></select></div>
+        </div>
+        <button class="btn" id="stAdd">حفظ الطالب</button>
+      </div>
+
+      <div class="card">
+        <h2>إضافة جماعية</h2>
+        <p class="hint">الصق أسماء الطلاب، اسما في كل سطر، واختر الحلقة — يضافون كلهم دفعة واحدة (تكمل بياناتهم لاحقا).</p>
+        <div class="field"><label>المرحلة</label><select id="bkStage"><option value="">— اختر —</option></select></div>
+        <div class="field"><label>الحلقة</label><select id="bkHalaqa"><option value="">— اختر —</option></select></div>
+        <div class="field"><label>الأسماء (سطر لكل طالب)</label><textarea id="bkNames" placeholder="محمد أحمد علي&#10;يوسف خالد سعيد&#10;..."></textarea></div>
+        <button class="btn btn-sec" id="bkAdd">إضافة الجميع</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h2>الطلاب المسجلون <span id="stCount" class="pill"></span></h2>
+          <button class="btn-gold" id="expStudents">⬇ تصدير Excel</button>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="field" style="max-width:260px"><label>تصفية بالمرحلة</label><select id="stStage"><option value="">كل المراحل</option></select></div>
+          <div class="field" style="max-width:260px"><label>تصفية بالحلقة</label><select id="stFilter"><option value="">كل الحلقات</option></select></div>
+          <div class="field" style="max-width:260px"><label>تصفية بالمحفظ</label><select id="stTeacher"><option value="">كل المحفظين</option></select></div>
+        </div>
+        <div class="tablewrap"><table class="tbl"><thead><tr>
+          <th>الكود</th><th>الاسم الرباعي</th><th>رقم الهوية</th><th>الميلاد</th><th>واتساب</th><th>الحالة</th><th>الاجتماعية</th><th>الحلقة</th><th>المرحلة</th><th></th>
+        </tr></thead>
+          <tbody id="stList"><tr class="muted-row"><td colspan="10">لا طلاب بعد.</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- اللجان -->
+    <section class="panel" id="panel-committees">
+      <div class="card">
+        <h2>اللجان</h2>
+        <p class="hint">اللجان معرفة في النظام. عين مسؤول/أعضاء كل لجنة، واضغط زر <b>👁</b> لفتح صفحة اللجنة بصلاحيات كاملة.</p>
+        <div class="tablewrap"><table class="tbl"><thead><tr><th>اللجنة</th><th>المؤشر</th><th>الأعضاء</th><th></th></tr></thead>
+          <tbody id="cList"><tr class="muted-row"><td colspan="4">لا لجان بعد.</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- الحضور -->
+    <section class="panel" id="panel-attendance">
+      <div class="card">
+        <h2>إعدادات الحضور</h2>
+        <p class="hint">يحتسب الشخص «متأخرا» إذا مسح رمزه بعد وقت البداية + مدة السماح. تطبق على الطلاب والمحفظين معا.</p>
+        <div class="grid">
+          <div class="field"><label>وقت بداية الدوام</label><input type="time" id="setStart" /></div>
+          <div class="field"><label>دقائق السماح (بعدها متأخر)</label><input type="number" id="setGrace" min="0" step="1" /></div>
+          <div class="field"><label>دقائق الغياب التلقائي</label><input type="number" id="setAbsent" min="0" step="1" placeholder="مثال: 60" /></div>
+        </div>
+        <button class="btn" id="setSave">حفظ الإعدادات</button>
+      </div>
+      <div class="card">
+        <h2>حضور اليوم</h2>
+        <div class="grid">
+          <div class="field"><label>التاريخ</label><input type="date" id="attDate" /></div>
+          <div class="field"><label>النوع</label><select id="attKind"><option value="">الكل</option><option value="student">الطلاب</option><option value="staff">المحفظين</option></select></div>
+          <div class="field"><label>المرحلة</label><select id="attStage"><option value="">كل المراحل</option></select></div>
+          <div class="field"><label>الحلقة</label><select id="attHalaqa"><option value="">كل الحلقات</option></select></div>
+        </div>
+        <p class="hint" id="attSummary"></p>
+        <div class="tablewrap"><table class="tbl"><thead><tr><th>الاسم</th><th>النوع</th><th>المرحلة</th><th>الحالة</th><th>وقت الدخول</th></tr></thead>
+          <tbody id="attBody"><tr class="muted-row"><td colspan="5">—</td></tr></tbody></table></div>
+      </div>
+      <div class="card">
+        <h2>سجل حضور فرد</h2>
+        <p class="hint">اختر محفظا أو طالبا لعرض سجل حضوره الكامل عبر الأيام.</p>
+        <div class="field" style="max-width:380px"><label>الشخص</label><select id="attPerson"><option value="">— اختر —</option></select></div>
+        <p class="hint" id="attPersonSum"></p>
+        <div class="tablewrap"><table class="tbl"><thead><tr><th>التاريخ</th><th>الحالة</th><th>وقت الدخول</th></tr></thead>
+          <tbody id="attPersonBody"><tr class="muted-row"><td colspan="3">—</td></tr></tbody></table></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- تعديل الطالب -->
+<div id="stuModal" class="modal-bg hide">
+  <div class="modal">
+    <h3>تعديل بيانات الطالب</h3>
+    <p id="estWho" class="hint" style="margin:4px 0 14px"></p>
+    <div class="field"><label>الاسم الرباعي</label><input type="text" id="estName" /></div>
+    <div class="field"><label>الحلقة (للنقل)</label><select id="estHalaqa"></select></div>
+    <div class="grid">
+      <div class="field"><label>رقم الهوية</label><input type="text" id="estNid" /></div>
+      <div class="field"><label>تاريخ الميلاد</label><input type="date" id="estDob" /></div>
+    </div>
+    <div class="field"><label>واتساب ولي الأمر</label><input type="text" id="estWa" /></div>
+    <div class="grid">
+      <div class="field"><label>الحالة</label><select id="estStatus"><option value="committed">ملتزم</option><option value="withdrawn">منقطع</option></select></div>
+      <div class="field"><label>الحالة الاجتماعية</label><select id="estOrphan"><option value="non_orphan">غير يتيم</option><option value="orphan">يتيم</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:6px"><button class="btn" id="estSave">حفظ التعديل</button><button class="btn btn-sec" id="estCancel">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- تعديل المحفظ -->
+<div id="stfModal" class="modal-bg hide">
+  <div class="modal">
+    <h3>تعديل بيانات المحفظ</h3>
+    <p id="esfWho" class="hint" style="margin:4px 0 14px"></p>
+    <div class="grid">
+      <div class="field"><label>الاسم الرباعي</label><input type="text" id="esfName" /></div>
+      <div class="field"><label>الدور</label><select id="esfRole"><option value="teacher">محفظ</option><option value="admin">أدمن</option></select></div>
+    </div>
+    <div class="field"><label>الحلقة</label><select id="esfHalaqa"></select></div>
+    <div class="grid">
+      <div class="field"><label>رقم الهوية</label><input type="text" id="esfNid" /></div>
+      <div class="field"><label>تاريخ الميلاد</label><input type="date" id="esfDob" /></div>
+    </div>
+    <div class="field"><label>واتساب</label><input type="text" id="esfWa" /></div>
+    <div class="grid">
+      <div class="field"><label>الحفظ (أجزاء)</label><input type="number" id="esfHifdh" min="0" max="30" /></div>
+      <div class="field"><label>التجويد</label><select id="esfTajweed"><option value="">— اختر —</option><option value="tahiliyya">تأهيلية</option><option value="ulya">عليا</option><option value="tahil_sanad">تأهيل سند</option><option value="sanad">سند</option></select></div>
+    </div>
+    <div class="grid">
+      <div class="field"><label>نوع الحساب البنكي</label><select id="esfBankType"><option value="">— اختر —</option><option value="palpay">بال باي</option><option value="jawwalpay">جوال باي</option><option value="bank_of_palestine">بنك فلسطين</option></select></div>
+      <div class="field"><label>رقم الحساب</label><input type="text" id="esfBankAcc" /></div>
+    </div>
+    <div class="field"><label>الحالة</label><select id="esfStatus"><option value="committed">ملتزم</option><option value="withdrawn">منقطع</option></select></div>
+    <div style="display:flex;gap:8px;margin-top:6px"><button class="btn" id="esfSave">حفظ التعديل</button><button class="btn btn-sec" id="esfCancel">إلغاء</button></div>
+  </div>
+</div>
+
+<!-- أعضاء اللجنة -->
+<div id="memModal" class="modal-bg hide">
+  <div class="modal">
+    <h3>أعضاء اللجنة</h3>
+    <p id="memWho" class="hint" style="margin:4px 0 14px"></p>
+    <div class="grid">
+      <div class="field"><label>المحفظ</label><select id="memStaff"></select></div>
+      <div class="field"><label>الدور</label><select id="memRole"><option value="lead">مسؤول</option><option value="member">عضو</option></select></div>
+    </div>
+    <button class="btn btn-sec" id="memAdd" style="margin-bottom:14px">إضافة عضو</button>
+    <div class="tablewrap"><table class="tbl"><thead><tr><th>المحفظ</th><th>الدور</th><th></th></tr></thead>
+      <tbody id="memList"></tbody></table></div>
+    <div style="display:flex;gap:8px;margin-top:14px"><button class="btn" id="memClose">تم</button></div>
+  </div>
+</div>
+
+<!-- مهام اللجنة -->
+<div id="taskModal" class="modal-bg hide">
+  <div class="modal">
+    <h3>مهام اللجنة</h3>
+    <p id="taskWho" class="hint" style="margin:4px 0 14px"></p>
+    <div class="field"><label>عنوان المهمة</label><input type="text" id="taskTitle" placeholder="مثال: تجهيز افطار اليوم" /></div>
+    <div class="field"><label>تفاصيل</label><input type="text" id="taskDetails" placeholder="تفاصيل المهمة" /></div>
+    <button class="btn btn-sec" id="taskAdd" style="margin-bottom:14px">اسناد المهمة</button>
+    <div id="taskList"></div>
+    <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="taskClose">تم</button></div>
+  </div>
+</div>
+
+<div id="profModal" class="prof-bg hide">
+  <div class="prof-card">
+    <h3>الملف الشخصي</h3>
+    <div id="profInfo" class="prof-info"></div>
+    <hr class="prof-hr"/>
+    <h4>تغيير كلمة المرور</h4>
+    <input type="password" id="profPass1" placeholder="كلمة مرور جديدة (6 أحرف فأكثر)" />
+    <input type="password" id="profPass2" placeholder="تأكيد كلمة المرور" />
+    <div class="prof-btns"><button class="pbtn primary" id="profSave">تغيير كلمة المرور</button><button class="pbtn sec" id="profClose">إغلاق</button></div>
+    <div class="prof-msg" id="profMsg"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="lib/supabase.min.js"></script>
+<script src="lib/offline-queue.js"></script>
+<script>
+/* ====== مفاتيح Supabase (مثبتة) ====== */
+const SUPABASE_URL  = "https://zubmytkocwaxhryctbmm.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1Ym15dGtvY3dheGhyeWN0Ym1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0Nzg2MTgsImV4cCI6MjA5ODA1NDYxOH0.p0IrIBISGSPY0Wfg-hU7ryDHYRyz9jMCVk6ID5TkG3U";
+const DEFAULT_PASSWORD = "123456";
+/* ===================================== */
+
+const { createClient } = supabase;
+let sb=null, HALAQAT=[], STAFF=[], STUDENTS=[], STAGES=[], mvCode=null, COMMITTEES=[], MEMBERS=[], memCid=null, STU_COURSES={};
+let IS_AMIR=false, AMIR_STAGE=null;
+const $=(id)=>document.getElementById(id);
+async function openProfile(){
+  $("profMsg").className="prof-msg"; $("profPass1").value="";$("profPass2").value="";
+  let info="";
+  try{
+    const {data:{user}}=await sb.auth.getUser();
+    if(user){
+      info=`<div class="r"><b>الحساب</b><span>${esc(user.email||"")}</span></div>`;
+      const {data:me}=await sb.from("staff").select("*").eq("auth_uid",user.id).maybeSingle();
+      if(me){
+        const rows=[["الاسم",me.full_name],["الكود",me.code],["الدور",me.role==="admin"?"أدمن":"محفظ"]];
+        if(me.whatsapp)rows.push(["واتساب",me.whatsapp]);
+        if(me.national_id)rows.push(["رقم الهوية",me.national_id]);
+        if(me.tajweed)rows.push(["التجويد",me.tajweed]);
+        info+=rows.map(([k,v])=>`<div class="r"><b>${k}</b><span>${esc(v??"—")}</span></div>`).join("");
+      }
+    }
+  }catch(e){}
+  $("profInfo").innerHTML=info||'<div class="r"><span>تعذر جلب البيانات</span></div>';
+  $("profModal").classList.remove("hide");
+}
+async function changePassword(){
+  const p1=$("profPass1").value,p2=$("profPass2").value,msg=$("profMsg");
+  if(p1.length<6){msg.textContent="كلمة المرور 6 أحرف على الأقل.";msg.className="prof-msg err";return;}
+  if(p1!==p2){msg.textContent="كلمتا المرور غير متطابقتين.";msg.className="prof-msg err";return;}
+  const {error}=await sb.auth.updateUser({password:p1});
+  if(error){msg.textContent="تعذر التغيير: "+error.message;msg.className="prof-msg err";return;}
+  msg.textContent="✓ تم تغيير كلمة المرور بنجاح."; msg.className="prof-msg ok";
+  $("profPass1").value="";$("profPass2").value="";
+}
+function toast(t,bad){const e=$("toast");e.textContent=t;e.className="show"+(bad?" bad":"");setTimeout(()=>e.className="",2600);}
+function showMsg(id,t,ok){const e=$(id);e.textContent=t;e.className="msg "+(ok?"ok":"err");}
+function clearMsg(id){$(id).className="msg";}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function hName(id){const h=HALAQAT.find(x=>x.id===id);return h?h.name:"—";}
+function setupValidation(){
+  // أرقام فقط
+  ["sNid","stNid","sWa","stWa","sHifdh","sBankAcc","setGrace","setAbsent"].forEach(id=>{
+    const e=$(id); if(e) e.addEventListener("input",ev=>{ev.target.value=ev.target.value.replace(/[^0-9]/g,"");});
+  });
+  // أحرف عربية ومسافات فقط (أسماء الأشخاص)
+  ["sName","stName"].forEach(id=>{
+    const e=$(id); if(e) e.addEventListener("input",ev=>{ev.target.value=ev.target.value.replace(/[^\u0600-\u06FF\s]/g,"");});
+  });
+}
+function hStage(id){const h=HALAQAT.find(x=>x.id===id);return h?stageName(h.stage_id):"—";}
+function stageName(sid){const s=STAGES.find(x=>String(x.id)===String(sid));return s?s.name:"—";}
+function halaqaStageId(id){const h=HALAQAT.find(x=>x.id===id);return h&&h.stage_id!=null?String(h.stage_id):"";}
+function stageOpts(){return STAGES.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");}
+function fillHalaqaByStage(stageElId,halaqaElId,none){const sv=$(stageElId).value;const list=sv?HALAQAT.filter(h=>String(h.stage_id)===String(sv)):[];$(halaqaElId).innerHTML=(none?'<option value="">'+none+'</option>':'')+list.map(h=>`<option value="${h.id}">${esc(h.name)}</option>`).join("");}
+async function loadStages(){const _r=await window.NumanQueue.load("admin_stages", async()=>{ const x=await sb.from("stages").select("*").order("sort_order"); if(x.error) throw x.error; return x.data||[]; }); STAGES=_r.data||[];
+  if($("hStage"))     $("hStage").innerHTML='<option value="">— اختر —</option>'+stageOpts();
+  if($("sStage"))     $("sStage").innerHTML='<option value="">— بدون —</option>'+stageOpts();
+  if($("stAddStage")) $("stAddStage").innerHTML='<option value="">— اختر —</option>'+stageOpts();
+  if($("bkStage"))    $("bkStage").innerHTML='<option value="">— اختر —</option>'+stageOpts();
+  if($("stStage"))    $("stStage").innerHTML='<option value="">كل المراحل</option>'+stageOpts();
+  if($("hFilter"))    $("hFilter").innerHTML='<option value="">كل المراحل</option>'+stageOpts();
+}
+function hTeacher(id){const h=HALAQAT.find(x=>x.id===id);return h?h.teacher_code:null;}
+const ROLE_AR={admin:"أدمن",teacher:"محفظ"};
+const ST_AR={committed:"ملتزم",withdrawn:"منقطع"};
+const OR_AR={orphan:"يتيم",non_orphan:"غير يتيم"};
+const TJ_AR={tahiliyya:"تأهيلية",ulya:"عليا",tahil_sanad:"تأهيل سند",sanad:"سند"};
+const BK_AR={palpay:"بال باي",jawwalpay:"جوال باي",bank_of_palestine:"بنك فلسطين"};
+const lbl=(m,v)=>v?(m[v]||v):"—";
+
+window.addEventListener("DOMContentLoaded",init);
+async function init(){
+  sb=createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{storageKey:"numan-auth"}});
+  window.__numanSb=sb; try{window.__numanToast=toast;}catch(e){}
+  wireUI();
+  const {data:{session}}=await sb.auth.getSession();
+  if(session) await enterApp(session);
+}
+function wireUI(){
+  $("loginBtn").onclick=doLogin;
+  $("loginPass").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+  $("logoutBtn").onclick=async()=>{await sb.auth.signOut();location.href="index.html";};
+  $("profBtn").onclick=openProfile; $("profSave").onclick=changePassword; $("profClose").onclick=()=>$("profModal").classList.add("hide");
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
+  $("setSave").onclick=saveSettings; $("attDate").onchange=loadAttendance; $("attKind").onchange=loadAttendance;
+  // تتالي المرحلة → الحلقة (#19/#21/#22)
+  if($("sStage"))     $("sStage").onchange=()=>fillHalaqaByStage("sStage","sHalaqa","— بدون —");
+  if($("stAddStage")) $("stAddStage").onchange=()=>fillHalaqaByStage("stAddStage","stHalaqa","— اختر —");
+  if($("bkStage"))    $("bkStage").onchange=()=>fillHalaqaByStage("bkStage","bkHalaqa","— اختر —");
+  if($("hFilter"))    $("hFilter").onchange=renderHalaqat;
+  if($("attStage"))  $("attStage").onchange=()=>{fillAttHalaqa();loadAttendance();};
+  if($("attHalaqa")) $("attHalaqa").onchange=loadAttendance;
+  if($("attPerson")) $("attPerson").onchange=loadPersonLog;
+  setupValidation();
+  $("hAdd").onclick=addHalaqa; $("sAdd").onclick=addStaff;
+  $("stAdd").onclick=addStudent; $("bkAdd").onclick=bulkAddStudents;
+  $("stFilter").onchange=loadStudents; $("stTeacher").onchange=loadStudents; $("stStage").onchange=()=>{fillStudentFilters();loadStudents();};
+  $("expStudents").onclick=exportStudents; $("expStaff").onclick=exportStaff;
+  $("estSave").onclick=saveStudentEdit; $("estCancel").onclick=closeStuModal;
+  $("esfSave").onclick=saveStaffEdit; $("esfCancel").onclick=closeStfModal;
+  $("memAdd").onclick=addMember; $("memClose").onclick=()=>$("memModal").classList.add("hide");
+  $("taskAdd").onclick=addTask; $("taskClose").onclick=()=>$("taskModal").classList.add("hide");
+}
+const ATT_KIND={student:"طالب",staff:"محفظ"};
+const ATT_STA={present:{t:"حاضر",bg:"#E6F1EA",c:"#1E7A48"},late:{t:"متأخر",bg:"#F6EEDA",c:"#B5872B"},absent:{t:"غائب",bg:"#FBE9E9",c:"#B23B3B"}};
+function fmtClock(ts){ if(!ts)return"—"; try{return new Date(ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Hebron"});}catch(e){return"—";} }
+async function loadSettings(){
+  const {data}=await sb.from("app_settings").select("*");
+  const m={}; (data||[]).forEach(r=>m[r.key]=r.value);
+  if($("setAbsent")) $("setAbsent").value=m.absent_after_min||"60";
+  $("setStart").value=m.session_start||"07:00"; $("setGrace").value=m.late_grace_min||"15";
+}
+async function saveSettings(){
+  const start=$("setStart").value||"07:00", grace=String(parseInt($("setGrace").value||"15",10)||0), absent=String(parseInt(($("setAbsent")?$("setAbsent").value:"60")||"60",10)||0);
+  const {error}=await sb.from("app_settings").upsert([{key:"session_start",value:start},{key:"late_grace_min",value:grace},{key:"absent_after_min",value:absent}]);
+  if(error)return toast("تعذر الحفظ: "+error.message,1);
+  toast("تم حفظ إعدادات الحضور");
+}
+function populateAttFilters(){
+  if($("attStage")) $("attStage").innerHTML='<option value="">كل المراحل</option>'+stageOpts();
+  fillAttHalaqa();
+  const ppl=[...STAFF.map(s=>({c:s.code,n:s.full_name+" — "+s.code})),...STUDENTS.map(s=>({c:s.code,n:s.full_name+" — "+s.code}))];
+  if($("attPerson")) $("attPerson").innerHTML='<option value="">— اختر —</option>'+ppl.map(p=>`<option value="${p.c}">${esc(p.n)}</option>`).join("");
+}
+function fillAttHalaqa(){
+  const sv=$("attStage")?$("attStage").value:"";
+  let list=sv?HALAQAT.filter(h=>String(h.stage_id)===String(sv)):HALAQAT;
+  if(IS_AMIR) list=list.filter(h=>String(h.stage_id)===String(AMIR_STAGE));
+  if($("attHalaqa")) $("attHalaqa").innerHTML='<option value="">كل الحلقات</option>'+list.map(h=>`<option value="${h.id}">${esc(h.name)}</option>`).join("");
+}
+async function loadAttendance(){
+  const d=$("attDate").value||new Date().toLocaleDateString("en-CA");
+  const {data,error}=await sb.from("v_center_attendance").select("*").eq("attend_date",d).order("check_in");
+  if(error){$("attBody").innerHTML='<tr class="muted-row"><td colspan="5">تعذر التحميل: '+esc(error.message)+'</td></tr>';$("attSummary").textContent="";return;}
+  let rows=data||[];
+  const kf=$("attKind").value, sf=$("attStage")?$("attStage").value:"", hf=$("attHalaqa")?$("attHalaqa").value:"";
+  if(kf)rows=rows.filter(r=>r.kind===kf);
+  if(sf)rows=rows.filter(r=>halaqaStageId(r.halaqa_id)===String(sf));
+  if(hf)rows=rows.filter(r=>String(r.halaqa_id)===String(hf));
+  const nP=rows.filter(r=>r.status==="present").length,nL=rows.filter(r=>r.status==="late").length;
+  const nS=rows.filter(r=>r.kind==="student").length,nT=rows.filter(r=>r.kind==="staff").length;
+  $("attSummary").textContent=`الإجمالي ${rows.length} (طلاب ${nS} · محفظين ${nT}) — حاضر ${nP} · متأخر ${nL}`;
+  $("attBody").innerHTML=rows.length?rows.map(r=>{
+    const st=ATT_STA[r.status]||{t:r.status||"—",bg:"#eee",c:"#555"};
+    return `<tr><td>${esc(r.full_name||r.person_code)}</td><td>${ATT_KIND[r.kind]||r.kind}</td><td>${esc(stageName(halaqaStageId(r.halaqa_id)))}</td>`+
+      `<td><span style="display:inline-block;padding:2px 10px;border-radius:20px;font-weight:700;font-size:12px;background:${st.bg};color:${st.c}">${st.t}</span></td>`+
+      `<td>${fmtClock(r.check_in)}</td></tr>`;
+  }).join(""):'<tr class="muted-row"><td colspan="5">لا حضور مسجل في هذا التاريخ.</td></tr>';
+}
+async function loadPersonLog(){
+  const code=$("attPerson").value;
+  if(!code){$("attPersonBody").innerHTML='<tr class="muted-row"><td colspan="3">—</td></tr>';$("attPersonSum").textContent="";return;}
+  const {data,error}=await sb.from("center_attendance").select("attend_date,status,check_in").eq("person_code",code).order("attend_date",{ascending:false});
+  if(error){$("attPersonBody").innerHTML='<tr class="muted-row"><td colspan="3">تعذر التحميل</td></tr>';return;}
+  const rows=data||[];
+  const nP=rows.filter(r=>r.status==="present").length,nL=rows.filter(r=>r.status==="late").length,nA=rows.filter(r=>r.status==="absent").length;
+  $("attPersonSum").textContent=`الأيام المسجلة ${rows.length} — حاضر ${nP} · متأخر ${nL} · غائب ${nA}`;
+  const STA={present:{t:"حاضر",bg:"#E6F1EA",c:"#1E7A48"},late:{t:"متأخر",bg:"#F6EEDA",c:"#B5872B"},absent:{t:"غائب",bg:"#FBE9E9",c:"#B23B3B"}};
+  $("attPersonBody").innerHTML=rows.length?rows.map(r=>{
+    const st=STA[r.status]||{t:r.status||"—",bg:"#eee",c:"#555"};
+    return `<tr><td>${esc(r.attend_date)}</td><td><span style="display:inline-block;padding:2px 10px;border-radius:20px;font-weight:700;font-size:12px;background:${st.bg};color:${st.c}">${st.t}</span></td><td>${fmtClock(r.check_in)}</td></tr>`;
+  }).join(""):'<tr class="muted-row"><td colspan="3">لا سجل لهذا الشخص.</td></tr>';
+}
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+name));
+  if(name==="attendance"){ if(!$("attDate").value)$("attDate").value=new Date().toLocaleDateString("en-CA"); loadSettings(); populateAttFilters(); loadAttendance(); }
+}
+
+async function doLogin(){
+  clearMsg("loginMsg");
+  const code=$("loginCode").value.trim().toLowerCase(),pass=$("loginPass").value;
+  if(!code||!pass){showMsg("loginMsg","اكتب الكود وكلمة المرور.");return;}
+  $("loginBtn").disabled=true;$("loginBtn").textContent="جار الدخول…";
+  const {data,error}=await sb.auth.signInWithPassword({email:code+"@numan.com",password:pass});
+  $("loginBtn").disabled=false;$("loginBtn").textContent="دخول";
+  if(error){showMsg("loginMsg","الكود أو كلمة المرور غير صحيحة.");return;}
+  await enterApp(data.session);
+}
+async function enterApp(session){
+  const me=await window.NumanQueue.identity(sb, session.user.id, "admin");
+  if(!me){showMsg("loginMsg","تحتاج اتصالا بالانترنت اول مرة لتحميل بياناتك.");await sb.auth.signOut();return;}
+  IS_AMIR=false; AMIR_STAGE=null;
+  if(me.role!=="admin"){
+    let stg=null;
+    if(navigator.onLine){ try{ const r=await sb.from("stages").select("id,name").eq("amir_code",me.code).maybeSingle(); stg=r.data; window.NumanQueue.cacheSet("amir_"+me.code, stg||null); }catch(e){} }
+    if(!stg) stg=window.NumanQueue.cacheGet("amir_"+me.code);
+    if(!stg){showMsg("loginMsg","هذه اللوحة للإدارة وأمراء المراحل فقط.");await sb.auth.signOut();return;}
+    IS_AMIR=true; AMIR_STAGE=stg.id; window.__amirName=stg.name;
+  }
+  $("whoName").textContent=me.full_name+(IS_AMIR?" · أمير "+(window.__amirName||""):"");
+  $("loginScreen").classList.add("hide");$("app").classList.remove("hide");
+  await loadStages();
+  if(IS_AMIR){ $("whoName").textContent=me.full_name+" · أمير "+stageName(AMIR_STAGE); applyAmirScope(); }
+  await loadHalaqat();await loadStaff();await loadCourses();await loadStudents();
+  if(!IS_AMIR) await loadCommittees();
+}
+function applyAmirScope(){
+  // أمير المرحلة: لا ينشئ محفظا ولا طالبا (#20)، ولا يرى اللجان/إعدادات الحضور
+  ["committees","attendance"].forEach(nm=>{const t=document.querySelector('.tab[data-tab="'+nm+'"]');if(t)t.classList.add("hide");});
+  [...document.querySelectorAll("#panel-staff .card")].forEach(c=>{
+    const head=c.querySelector("h2"); if(head && head.textContent.indexOf("إضافة")===0) c.classList.add("hide");
+  });
+  // ثبت فلتر المرحلة على مرحلة الأمير
+  if($("hFilter")){ $("hFilter").value=String(AMIR_STAGE); $("hFilter").disabled=true; }
+  if($("hStage")){ $("hStage").value=String(AMIR_STAGE); $("hStage").disabled=true; }
+}
+
+/* الحلقات */
+async function loadHalaqat(){
+  const _r=await window.NumanQueue.load("admin_halaqat", async()=>{ const x=await sb.from("halaqat").select("*").order("id"); if(x.error) throw x.error; return x.data||[]; });
+  const data=_r.data; if(!data){toast("تعذر تحميل الحلقات",1);return;}
+  HALAQAT=data||[]; $("cHalaqat").textContent=HALAQAT.length;
+  // قوائم الحلقات في النماذج تملأ بالتتالي عند اختيار المرحلة (#19/#21/#22)
+  fillStudentFilters();
+  renderHalaqat();
+}
+function halaqaTeachers(id){
+  const t=STAFF.filter(s=>s.halaqa_id===id);
+  return t.length?t.map(s=>`${esc(s.full_name)} <span class="code">${s.code}</span>`).join("، "):"—";
+}
+function renderHalaqat(){
+  const b=$("hList"); const hf=$("hFilter")?$("hFilter").value:"";
+  let list=HALAQAT;
+  if(IS_AMIR) list=list.filter(h=>String(h.stage_id)===String(AMIR_STAGE));
+  if(hf) list=list.filter(h=>String(h.stage_id)===String(hf));
+  b.innerHTML=list.length?list.map(h=>`<tr><td>${esc(h.name)}</td><td>${esc(stageName(h.stage_id))}</td><td style="white-space:normal">${halaqaTeachers(h.id)}</td><td style="white-space:nowrap"><button class="mvbtn" onclick="location.href='teacher.html?ro=${h.id}'" title="عرض الحلقة قراءة فقط">👁 عرض</button> <button class="del" onclick="delHalaqa(${h.id})">حذف</button></td></tr>`).join(""):'<tr class="muted-row"><td colspan="4">لا حلقات مطابقة.</td></tr>';
+}
+async function addHalaqa(){
+  if(!navigator.onLine) return toast("الإضافة تحتاج اتصالا بالانترنت",1);
+  const name=$("hName").value.trim(),stage=IS_AMIR?String(AMIR_STAGE):$("hStage").value;
+  if(!name){toast("اكتب اسم الحلقة",1);return;}
+  const {error}=await sb.from("halaqat").insert({name,stage_id:stage||null});
+  if(error){toast("تعذر الحفظ: "+error.message,1);return;}
+  $("hName").value="";$("hStage").value="";
+  toast("تمت إضافة الحلقة");await loadHalaqat();
+}
+async function delHalaqa(id){
+  if(!confirm("حذف الحلقة؟ (تأكد أنها بلا طلاب)"))return;
+  const {error}=await sb.from("halaqat").delete().eq("id",id);
+  if(error){toast("تعذر الحذف: "+error.message,1);return;}
+  toast("حذفت");await loadHalaqat();
+}
+
+/* المحفظين */
+function tag(state){return state==="withdrawn"?'<span class="tag no">منقطع</span>':'<span class="tag ok">ملتزم</span>';}
+async function loadStaff(){
+  const _r=await window.NumanQueue.load("admin_staff", async()=>{ const x=await sb.from("staff").select("*").order("code"); if(x.error) throw x.error; return x.data||[]; });
+  const data=_r.data; if(!data){toast("تعذر تحميل المحفظين",1);return;}
+  STAFF=data||[];
+  let _sv=STAFF; if(IS_AMIR) _sv=STAFF.filter(s=>halaqaStageId(s.halaqa_id)===String(AMIR_STAGE));
+  $("cStaff").textContent=_sv.length;
+  $("sList").innerHTML=_sv.length?_sv.map(s=>`<tr>
+    <td><span class="code">${s.code}</span></td><td>${esc(s.full_name)}</td><td>${ROLE_AR[s.role]||s.role}</td>
+    <td>${esc(hName(s.halaqa_id))}</td>
+    <td>${esc(s.national_id||"—")}</td><td>${esc(s.birth_date||"—")}</td>
+    <td style="direction:ltr;text-align:right">${esc(s.whatsapp||"—")}</td><td>${s.hifdh_parts??"—"}</td>
+    <td>${lbl(TJ_AR,s.tajweed)}</td><td>${lbl(BK_AR,s.bank_type)}</td>
+    <td style="direction:ltr;text-align:right">${esc(s.bank_account||"—")}</td><td>${tag(s.status_state)}</td>
+    <td><div class="actions"><button class="qrbtn" onclick="downloadQR('${s.code}')">QR</button><button class="mvbtn" onclick="openStaffEdit('${s.code}')">تعديل</button><button class="mvbtn" onclick="resetPassword('${s.code}')">كلمة المرور</button><button class="del" onclick="delStaff('${s.code}')">حذف</button></div></td>
+  </tr>`).join(""):'<tr class="muted-row"><td colspan="13">لا محفظين بعد.</td></tr>';
+  renderHalaqat();
+}
+async function addStaff(){
+  if(!navigator.onLine) return toast("الإضافة تحتاج اتصالا بالانترنت",1);
+  if(IS_AMIR){toast("غير مسموح لأمير المرحلة بإنشاء محفظ",1);return;}
+  clearMsg("sMsg");
+  const name=$("sName").value.trim(),role=$("sRole").value;
+  if(!name){toast("اكتب اسم المحفظ",1);return;}
+  const rec={
+    full_name:name, role,
+    halaqa_id:$("sHalaqa").value||null,
+    national_id:$("sNid").value.trim()||null, birth_date:$("sDob").value||null,
+    whatsapp:$("sWa").value.trim()||null,
+    hifdh_parts:$("sHifdh").value?parseInt($("sHifdh").value):null,
+    tajweed:$("sTajweed").value||null,
+    bank_type:$("sBankType").value||null, bank_account:$("sBankAcc").value.trim()||null,
+    status_state:$("sStatus").value
+  };
+  $("sAdd").disabled=true;$("sAdd").textContent="جار الإضافة…";
+  const {data:{session:adminSess}}=await sb.auth.getSession();   // احفظ جلسة الأدمن
+  try{
+    const {data:row,error:e1}=await sb.from("staff").insert(rec).select().single();
+    if(e1) throw e1;
+    const code=row.code;
+    // إنشاء حساب الدخول عبر Edge Function (التسجيل الذاتي مقفول لأسباب أمنية)
+    const fr=await sb.functions.invoke("admin-create-user",{body:{code,password:DEFAULT_PASSWORD,table:"staff"}});
+    const ferr=(fr&&fr.error&&(fr.error.message||fr.error))||(fr&&fr.data&&fr.data.error);
+    if(ferr){showMsg("sMsg","أضيف السطر لكن تعذر إنشاء حساب الدخول: "+ferr+" — تأكد من نشر دالة admin-create-user");}
+    ["sName","sNid","sWa","sHifdh","sBankAcc"].forEach(i=>$(i).value="");
+    $("sDob").value="";$("sHalaqa").value="";$("sTajweed").value="";$("sBankType").value="";
+    toast("أضيف المحفظ بالكود "+code); await loadStaff();
+  }catch(err){showMsg("sMsg","تعذرت الإضافة: "+err.message);}
+  finally{
+    // أعد جلسة الأدمن إن تغيرت لأي سبب
+    try{
+      const {data:{session:cur}}=await sb.auth.getSession();
+      if(adminSess && (!cur || cur.user.id!==adminSess.user.id)){
+        await sb.auth.setSession({access_token:adminSess.access_token,refresh_token:adminSess.refresh_token});
+      }
+    }catch(_){}
+  }
+  $("sAdd").disabled=false;$("sAdd").textContent="إضافة محفظ";
+}
+async function resetPassword(code){
+  if(!navigator.onLine)return toast("اعادة التعيين تحتاج اتصالا بالانترنت",1);
+  const pw=prompt("كلمة المرور الجديدة للكود "+code+" (٦ خانات على الاقل):");
+  if(pw===null)return;
+  if(!pw||pw.length<6)return toast("كلمة المرور قصيرة (٦ على الاقل)",1);
+  try{
+    const {data,error}=await sb.functions.invoke("admin-reset-password",{body:{target_code:code,new_password:pw}});
+    if(error)return toast("تعذر: "+error.message,1);
+    if(data&&data.error)return toast(data.error,1);
+    toast((data&&data.message)||"تم تعيين كلمة المرور");
+  }catch(e){ toast("تعذر الاتصال بالخدمة: "+(e.message||e),1); }
+}
+async function delStaff(code){
+  if(!confirm("حذف المحفظ "+code+"؟ (حساب الدخول يبقى في Authentication ويحذف يدويا)"))return;
+  const {error}=await sb.from("staff").delete().eq("code",code);
+  if(error){toast("تعذر الحذف: "+error.message,1);return;}
+  toast("حذف");await loadStaff();
+}
+
+/* الطلاب */
+function fillStudentFilters(){
+  const st=$("stStage").value;
+  let halaqas=st?HALAQAT.filter(h=>String(h.stage_id)===String(st)):HALAQAT;
+  if(IS_AMIR) halaqas=halaqas.filter(h=>String(h.stage_id)===String(AMIR_STAGE));
+  const prevH=$("stFilter").value, prevT=$("stTeacher").value;
+  $("stFilter").innerHTML='<option value="">كل الحلقات</option>'+halaqas.map(h=>`<option value="${h.id}">${esc(h.name)}</option>`).join("");
+  // محفظو المرحلة (أو الكل) = أكواد المحفظين على حلقات هذه المرحلة
+  const tcodes=[...new Set(halaqas.map(h=>h.teacher_code).filter(Boolean))];
+  $("stTeacher").innerHTML='<option value="">كل المحفظين</option>'+tcodes.map(c=>`<option value="${c}">${esc(sNm(c))}</option>`).join("");
+  // أبق الاختيار إن بقي صالحا
+  if([...$("stFilter").options].some(o=>o.value===prevH)) $("stFilter").value=prevH; else $("stFilter").value="";
+  if([...$("stTeacher").options].some(o=>o.value===prevT)) $("stTeacher").value=prevT; else $("stTeacher").value="";
+}
+async function loadCourses(){
+  try{
+    const c=await sb.from("courses").select("id,name");
+    const cs=await sb.from("course_students").select("course_id,student_code");
+    const cmap={}; (c.data||[]).forEach(x=>cmap[x.id]=x.name);
+    STU_COURSES={}; (cs.data||[]).forEach(x=>{ (STU_COURSES[x.student_code]=STU_COURSES[x.student_code]||[]).push(cmap[x.course_id]||""); });
+  }catch(e){ STU_COURSES={}; }
+}
+function courseBadges(code){
+  const cs=STU_COURSES[code]; if(!cs||!cs.length)return "";
+  return " "+cs.filter(Boolean).map(nm=>`<span style="display:inline-block;background:#E9F2EC;color:#1E7A48;border:1px solid #B8DCC4;border-radius:6px;padding:1px 7px;font-size:11px;margin-inline-start:4px">📚 ${esc(nm)}</span>`).join("");
+}
+async function loadStudents(){
+  const _r=await window.NumanQueue.load("admin_students", async()=>{ const x=await sb.from("students").select("*").order("code"); if(x.error) throw x.error; return x.data||[]; });
+  window.NumanQueue.banner(_r.offline);
+  const data=_r.data; if(!data){toast("تعذر تحميل الطلاب",1);return;}
+  STUDENTS=data||[];
+  const sf=$("stStage").value, hf=$("stFilter").value, tf=$("stTeacher").value;
+  let list=STUDENTS;
+  if(IS_AMIR) list=list.filter(s=>halaqaStageId(s.halaqa_id)===String(AMIR_STAGE));
+  if(sf) list=list.filter(s=>halaqaStageId(s.halaqa_id)===String(sf));
+  if(hf) list=list.filter(s=>String(s.halaqa_id)===String(hf));
+  if(tf) list=list.filter(s=>hTeacher(s.halaqa_id)===tf);
+  $("stCount").textContent=list.length+" طالب"; $("cStudents").textContent=STUDENTS.length;
+  $("stList").innerHTML=list.length?list.map(s=>`<tr>
+    <td><span class="code">${s.code}</span></td><td>${esc(s.full_name)}${courseBadges(s.code)}</td>
+    <td>${esc(s.national_id||"—")}</td><td>${esc(s.birth_date||"—")}</td>
+    <td style="direction:ltr;text-align:right">${esc(s.guardian_whatsapp||"—")}</td>
+    <td>${tag(s.status_state)}</td><td>${lbl(OR_AR,s.orphan)}</td><td>${esc(hName(s.halaqa_id))}</td><td>${esc(hStage(s.halaqa_id))}</td>
+    <td><div class="actions"><button class="qrbtn" onclick="downloadQR('${s.code}')">QR</button><button class="mvbtn" onclick="openStudentEdit('${s.code}')">تعديل</button><button class="mvbtn" onclick="resetPassword('${s.code}')">كلمة المرور</button><button class="del" onclick="delStudent('${s.code}')">حذف</button></div></td>
+  </tr>`).join(""):'<tr class="muted-row"><td colspan="10">لا طلاب بعد.</td></tr>';
+}
+async function addStudent(){
+  if(!navigator.onLine) return toast("الإضافة تحتاج اتصالا بالانترنت",1);
+  const name=$("stName").value.trim(),halaqa=$("stHalaqa").value||null;
+  if(!name){toast("اكتب اسم الطالب",1);return;}
+  if(!halaqa){toast("اختر الحلقة",1);return;}
+  const rec={full_name:name,halaqa_id:halaqa,
+    national_id:$("stNid").value.trim()||null, birth_date:$("stDob").value||null,
+    guardian_whatsapp:$("stWa").value.trim()||null,
+    status_state:$("stStatus").value, orphan:$("stOrphan").value};
+  const {data:row,error}=await sb.from("students").insert(rec).select().single();
+  if(error){toast("تعذر الحفظ: "+error.message,1);return;}
+  ["stName","stNid","stWa"].forEach(i=>$(i).value="");$("stDob").value="";
+  toast("أضيف الطالب بالكود "+row.code);await loadStudents();
+}
+async function bulkAddStudents(){
+  if(!navigator.onLine) return toast("الإضافة تحتاج اتصالا بالانترنت",1);
+  const halaqa=$("bkHalaqa").value||null;
+  const names=$("bkNames").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  if(!names.length){toast("الصق أسماء الطلاب أولا",1);return;}
+  if(!halaqa){toast("اختر الحلقة",1);return;}
+  $("bkAdd").disabled=true;$("bkAdd").textContent="جار الإضافة…";
+  const {error}=await sb.from("students").insert(names.map(n=>({full_name:n,halaqa_id:halaqa})));
+  $("bkAdd").disabled=false;$("bkAdd").textContent="إضافة الجميع";
+  if(error){toast("تعذرت الإضافة: "+error.message,1);return;}
+  $("bkNames").value="";toast("أضيف "+names.length+" طالبا");await loadStudents();
+}
+async function delStudent(code){
+  if(!confirm("حذف الطالب "+code+"؟"))return;
+  const {error}=await sb.from("students").delete().eq("code",code);
+  if(error){toast("تعذر الحذف: "+error.message,1);return;}
+  toast("حذف");await loadStudents();
+}
+
+/* تعديل الطالب */
+let editStu=null;
+function openStudentEdit(code){
+  const s=STUDENTS.find(x=>x.code===code); if(!s)return; editStu=code;
+  $("estWho").textContent=s.full_name+" — "+code;
+  $("estName").value=s.full_name||"";
+  $("estHalaqa").innerHTML=HALAQAT.map(h=>`<option value="${h.id}" ${s.halaqa_id===h.id?'selected':''}>${esc(h.name)}${h.stage?' ('+esc(h.stage)+')':''}</option>`).join("");
+  $("estNid").value=s.national_id||""; $("estDob").value=s.birth_date||"";
+  $("estWa").value=s.guardian_whatsapp||""; $("estStatus").value=s.status_state||"committed";
+  $("estOrphan").value=s.orphan||"non_orphan";
+  $("stuModal").classList.remove("hide");
+}
+function closeStuModal(){$("stuModal").classList.add("hide");editStu=null;}
+async function saveStudentEdit(){
+  const name=$("estName").value.trim(); if(!name){toast("الاسم مطلوب",1);return;}
+  const rec={full_name:name,halaqa_id:$("estHalaqa").value||null,
+    national_id:$("estNid").value.trim()||null,birth_date:$("estDob").value||null,
+    guardian_whatsapp:$("estWa").value.trim()||null,
+    status_state:$("estStatus").value,orphan:$("estOrphan").value};
+  const {error}=await sb.from("students").update(rec).eq("code",editStu);
+  if(error){toast("تعذر الحفظ: "+error.message,1);return;}
+  closeStuModal();toast("حفظت بيانات الطالب");await loadStudents();
+}
+
+/* تعديل المحفظ */
+let editStf=null;
+function openStaffEdit(code){
+  const s=STAFF.find(x=>x.code===code); if(!s)return; editStf=code;
+  $("esfWho").textContent=s.full_name+" — "+code;
+  $("esfName").value=s.full_name||""; $("esfRole").value=s.role||"teacher";
+  $("esfHalaqa").innerHTML='<option value="">— بدون —</option>'+HALAQAT.map(h=>`<option value="${h.id}" ${s.halaqa_id===h.id?'selected':''}>${esc(h.name)}</option>`).join("");
+  $("esfNid").value=s.national_id||""; $("esfDob").value=s.birth_date||"";
+  $("esfWa").value=s.whatsapp||""; $("esfHifdh").value=s.hifdh_parts??"";
+  $("esfTajweed").value=s.tajweed||""; $("esfBankType").value=s.bank_type||"";
+  $("esfBankAcc").value=s.bank_account||""; $("esfStatus").value=s.status_state||"committed";
+  $("stfModal").classList.remove("hide");
+}
+function closeStfModal(){$("stfModal").classList.add("hide");editStf=null;}
+async function saveStaffEdit(){
+  const name=$("esfName").value.trim(); if(!name){toast("الاسم مطلوب",1);return;}
+  const rec={full_name:name,role:$("esfRole").value,halaqa_id:$("esfHalaqa").value||null,
+    national_id:$("esfNid").value.trim()||null,birth_date:$("esfDob").value||null,
+    whatsapp:$("esfWa").value.trim()||null,
+    hifdh_parts:$("esfHifdh").value?parseInt($("esfHifdh").value):null,
+    tajweed:$("esfTajweed").value||null,bank_type:$("esfBankType").value||null,
+    bank_account:$("esfBankAcc").value.trim()||null,status_state:$("esfStatus").value};
+  const {error}=await sb.from("staff").update(rec).eq("code",editStf);
+  if(error){toast("تعذر الحفظ: "+error.message,1);return;}
+  closeStfModal();toast("حفظت بيانات المحفظ");await loadStaff();
+}
+
+/* توليد QR (صورة PNG: الرمز + الكود + الاسم + الحلقة) */
+function loadScriptOnce(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>{s.remove();rej(new Error(src));};document.head.appendChild(s);});}
+async function ensureQR(){
+  if(window.QRCode&&window.QRCode.toDataURL)return true;
+  const cdns=[
+    "lib/qrcode.min.js",
+    "https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js",
+    "https://unpkg.com/qrcode@1.5.4/build/qrcode.min.js"
+  ];
+  for(const u of cdns){ try{ await loadScriptOnce(u); if(window.QRCode&&window.QRCode.toDataURL)return true; }catch(e){} }
+  return !!(window.QRCode&&window.QRCode.toDataURL);
+}
+async function downloadQR(code){
+  toast("جار تحضير الرمز…");
+  const ok=await ensureQR();
+  if(!ok){toast("تعذر تحميل مكتبة الرمز — حدث الصفحة أو جرب اتصالا آخر",1);return;}
+  const Q=window.QRCode;
+  const ent=STUDENTS.find(s=>s.code===code)||STAFF.find(s=>s.code===code);
+  if(!ent){toast("تعذر إيجاد البيانات لهذا الكود",1);return;}
+  const name=(ent.full_name||"").trim();
+  try{
+    const qrUrl=await Q.toDataURL(code,{width:600,margin:2,color:{dark:"#16294D",light:"#FFFFFF"}});
+    const fname=(code+"_"+name).replace(/[\\/:*?"<>|]/g,"").replace(/\s+/g,"_")+".png";
+    const a=document.createElement("a"); a.href=qrUrl; a.download=fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast("تم تنزيل الرمز");
+  }catch(e){toast("تعذر توليد الرمز: "+(e.message||e),1);}
+}
+function composeCard(img,code,name,hq){
+  const hasHq=hq&&hq!=="—", W=340, H=hasHq?440:412;
+  const c=document.createElement("canvas");c.width=W;c.height=H;
+  const x=c.getContext("2d");
+  x.fillStyle="#fff";x.fillRect(0,0,W,H);
+  x.strokeStyle="#C9A24B";x.lineWidth=3;x.strokeRect(10,10,W-20,H-20);
+  const qs=276;x.drawImage(img,(W-qs)/2,30,qs,qs);
+  x.textAlign="center";
+  x.fillStyle="#16294D";x.font='bold 30px "IBM Plex Sans Arabic",sans-serif';x.fillText(code,W/2,350);
+  x.fillStyle="#1E2733";x.font='600 22px "IBM Plex Sans Arabic",sans-serif';x.fillText(name,W/2,384);
+  if(hasHq){x.fillStyle="#66707D";x.font='400 18px "IBM Plex Sans Arabic",sans-serif';x.fillText(hq,W/2,412);}
+  const a=document.createElement("a");a.href=c.toDataURL("image/png");a.download=code+".png";a.click();
+}
+
+/* تصدير Excel */
+function ensureXLSX(){return window.XLSX?Promise.resolve():new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";s.onload=()=>res();s.onerror=()=>rej(new Error("xlsx"));document.head.appendChild(s);});}
+async function downloadXlsx(rows,sheet,file){
+  if(!rows.length){toast("لا بيانات للتصدير",1);return;}
+  await ensureXLSX();
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws["!views"]=[{RTL:true}];
+  ws["!cols"]=Object.keys(rows[0]).map(()=>({wch:18}));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,sheet);
+  XLSX.writeFile(wb,file);
+}
+async function exportStudents(){
+  const {data,error}=await sb.from("students").select("*").order("code");
+  if(error){toast("تعذر التصدير",1);return;}
+  const rows=(data||[]).map(s=>({
+    "الكود":s.code,"الاسم الرباعي":s.full_name,"رقم الهوية":s.national_id||"",
+    "تاريخ الميلاد":s.birth_date||"","واتساب ولي الأمر":s.guardian_whatsapp||"",
+    "الحالة":lbl(ST_AR,s.status_state),"الحالة الاجتماعية":lbl(OR_AR,s.orphan),"الحلقة":hName(s.halaqa_id)
+  }));
+  downloadXlsx(rows,"الطلاب","students.xlsx");
+}
+async function exportStaff(){
+  const {data,error}=await sb.from("staff").select("*").order("code");
+  if(error){toast("تعذر التصدير",1);return;}
+  const rows=(data||[]).map(s=>({
+    "الكود":s.code,"الاسم الرباعي":s.full_name,"رقم الهوية":s.national_id||"",
+    "تاريخ الميلاد":s.birth_date||"","واتساب":s.whatsapp||"","الحفظ (أجزاء)":s.hifdh_parts??"",
+    "التجويد":lbl(TJ_AR,s.tajweed),"نوع الحساب":lbl(BK_AR,s.bank_type),"رقم الحساب":s.bank_account||"",
+    "الحالة":lbl(ST_AR,s.status_state),"الدور":ROLE_AR[s.role]||s.role,
+    "الحلقة":hName(s.halaqa_id)
+  }));
+  downloadXlsx(rows,"المحفظين","staff.xlsx");
+}
+
+/* اللجان */
+async function loadCommittees(){
+  const {data,error}=await sb.from("committees").select("*").order("id");
+  if(error){toast("تعذر تحميل اللجان",1);return;}
+  COMMITTEES=data||[];
+  const {data:m}=await sb.from("committee_members").select("*");
+  MEMBERS=m||[]; renderCommittees();
+}
+function sNm(code){const s=STAFF.find(x=>x.code===code);return s?s.full_name:code;}
+function memberSummary(cid){
+  const ms=MEMBERS.filter(x=>x.committee_id===cid);
+  if(!ms.length)return "—";
+  const lead=ms.find(x=>x.role==="lead");
+  return `${ms.length} عضو${lead?` · مسؤول: ${esc(sNm(lead.staff_code))}`:""}`;
+}
+function renderCommittees(){
+  const b=$("cList");
+  b.innerHTML=COMMITTEES.length?COMMITTEES.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td>${esc(c.indicator||"—")}</td><td>${memberSummary(c.id)}</td><td><div class="actions"><button class="mvbtn" title="فتح صفحة اللجنة" onclick="openCommittee('${encodeURIComponent(c.name)}')">👁 دخول</button><button class="mvbtn" onclick="openTasks(${c.id})">مهام</button><button class="mvbtn" onclick="openMembers(${c.id})">الأعضاء</button></div></td></tr>`).join(""):'<tr class="muted-row"><td colspan="4">لا لجان بعد.</td></tr>';
+}
+function openCommittee(nameEnc){ const nm=decodeURIComponent(nameEnc);
+  if(nm==="المالية"){window.open("finance.html","_blank");return;}
+  if(nm==="اللوجستية"){window.open("logistics.html?c="+nameEnc,"_blank");return;}
+  if(nm==="التقنية والإعلامية"){window.open("media.html?c="+nameEnc,"_blank");return;}
+  window.open("committee.html?c="+nameEnc,"_blank"); }
+function openMembers(cid){
+  memCid=cid; const c=COMMITTEES.find(x=>x.id===cid);
+  $("memWho").textContent=c?c.name:"";
+  $("memStaff").innerHTML=STAFF.map(s=>`<option value="${s.code}">${esc(s.full_name)} (${s.code})</option>`).join("");
+  renderMembers(); $("memModal").classList.remove("hide");
+}
+function renderMembers(){
+  const ms=MEMBERS.filter(x=>x.committee_id===memCid);
+  $("memList").innerHTML=ms.length?ms.map(m=>`<tr><td>${esc(sNm(m.staff_code))} <span class="code">${m.staff_code}</span></td><td>${m.role==="lead"?"مسؤول":"عضو"}</td><td><button class="del" onclick="removeMember(${m.id})">إزالة</button></td></tr>`).join(""):'<tr class="muted-row"><td colspan="3">لا أعضاء بعد.</td></tr>';
+}
+async function addMember(){
+  const code=$("memStaff").value, role=$("memRole").value;
+  if(!code){toast("اختر المحفظ",1);return;}
+  const {error}=await sb.from("committee_members").insert({committee_id:memCid,staff_code:code,role});
+  if(error){toast(/duplicate|unique/i.test(error.message)?"المحفظ مضاف مسبقا":("تعذر: "+error.message),1);return;}
+  const {data:m}=await sb.from("committee_members").select("*"); MEMBERS=m||[];
+  renderMembers(); renderCommittees(); toast("أضيف العضو");
+}
+async function removeMember(id){
+  const {error}=await sb.from("committee_members").delete().eq("id",id);
+  if(error){toast("تعذر: "+error.message,1);return;}
+  MEMBERS=MEMBERS.filter(x=>x.id!==id); renderMembers(); renderCommittees();
+}
+
+/* مهام اللجان */
+let TASKS=[], taskCid=null;
+const TASK_ST={open:"مفتوحة",done:"مكتملة",deferred:"مؤجلة",rejected:"مرفوضة"};
+const TASK_CL={open:"mid",done:"good",deferred:"mid",rejected:"bad"};
+async function openTasks(cid){
+  taskCid=cid; const c=COMMITTEES.find(x=>x.id===cid);
+  $("taskWho").textContent=c?c.name:""; $("taskTitle").value="";$("taskDetails").value="";
+  await loadTasks(); $("taskModal").classList.remove("hide");
+}
+async function loadTasks(){
+  const {data}=await sb.from("committee_tasks").select("*").eq("committee_id",taskCid).order("id",{ascending:false});
+  TASKS=data||[]; renderAdminTasks();
+}
+function renderAdminTasks(){
+  $("taskList").innerHTML=TASKS.length?TASKS.map(t=>`<div class="taskrow">
+    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(t.title)}</b><span class="tpill ${TASK_CL[t.status]||'mid'}">${TASK_ST[t.status]||t.status}</span></div>
+    ${t.details?`<div class="tsub">${esc(t.details)}</div>`:""}
+    ${t.reply?`<div class="trep"><b>رد اللجنة:</b> ${esc(t.reply)}</div>`:""}
+    <button class="del" onclick="delTask(${t.id})" style="margin-top:6px">حذف</button></div>`).join(""):'<p class="hint">لا مهام بعد.</p>';
+}
+async function addTask(){
+  const title=$("taskTitle").value.trim(); if(!title){toast("اكتب عنوان المهمة",1);return;}
+  const {error}=await sb.from("committee_tasks").insert({committee_id:taskCid,title,details:$("taskDetails").value.trim()||null});
+  if(error){toast("تعذر: "+error.message,1);return;}
+  $("taskTitle").value="";$("taskDetails").value=""; toast("أسندت المهمة"); await loadTasks();
+}
+async function delTask(id){
+  if(!confirm("حذف المهمة؟"))return;
+  const {error}=await sb.from("committee_tasks").delete().eq("id",id);
+  if(error){toast("تعذر: "+error.message,1);return;}
+  await loadTasks();
+}
+
+/* زر «تغيير البوابة» — يظهر فقط لمن له أكثر من بوابة (#7) */
+(function(){let n=0;const t=setInterval(async()=>{
+  if(typeof sb==="undefined"||!sb){if(++n>50)clearInterval(t);return;}
+  clearInterval(t);
+  try{const r=await sb.auth.getSession();const session=r&&r.data&&r.data.session;if(!session)return;
+    const {data:me}=await sb.from("staff").select("code,role,halaqa_id").eq("auth_uid",session.user.id).maybeSingle();if(!me)return;
+    let c=(me.role==="admin"?1:0)+(me.halaqa_id?1:0);const {data:_st}=await sb.from("stages").select("id").eq("amir_code",me.code);c+=(_st||[]).length;
+    const {data:m}=await sb.from("committee_members").select("id").eq("staff_code",me.code);c+=(m||[]).length;
+    const b=document.getElementById("switchPortalBtn");if(b&&c>1)b.classList.remove("hide");
+  }catch(e){}
+},150);})();
+
+</script>
+
+<style>
+.scan-fab{position:fixed;bottom:20px;left:20px;z-index:70;background:#1F3A6B;color:#fff;border:none;border-radius:50px;padding:13px 20px;font-family:inherit;font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(22,41,77,.3);cursor:pointer;display:none;align-items:center;gap:8px}
+.scan-fab.show{display:inline-flex}
+.scan-modal{position:fixed;inset:0;background:rgba(22,41,77,.65);z-index:96;display:none;align-items:center;justify-content:center;padding:18px}
+.scan-modal.show{display:flex}
+.scan-box{background:#fff;border-radius:18px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+.scan-box .sh{background:#16294D;color:#fff;padding:13px 16px;display:flex;justify-content:space-between;align-items:center}
+.scan-box .sh h3{margin:0;font-size:16px}
+.scan-box .sb{padding:14px}
+#scanReader{width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:60px}
+.scan-x{background:rgba(255,255,255,.2);color:#fff;border:none;width:30px;height:30px;border-radius:8px;font-size:16px;cursor:pointer}
+.scan-res{margin-top:12px;padding:11px;border-radius:10px;font-weight:700;text-align:center;display:none}
+.scan-hint{font-size:12px;color:#66707D;text-align:center;margin-top:8px}
+</style>
+<button class="scan-fab" id="scanFab" onclick="openScan()">📷 مسح الحضور</button>
+<div class="scan-modal" id="scanModal">
+  <div class="scan-box">
+    <div class="sh"><h3>مسح الحضور</h3><button class="scan-x" onclick="closeScan()">✕</button></div>
+    <div class="sb"><div id="scanReader"></div><div class="scan-res" id="scanRes"></div><div class="scan-hint">وجه الكاميرا نحو رمز الطالب أو المحفظ</div></div>
+  </div>
+</div>
+<script>
+(function(){
+  let scanner=null,lastC=null,lastT=0;
+  function loadOnce(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>{s.remove();rej();};document.head.appendChild(s);});}
+  async function ensureScan(){ if(window.Html5Qrcode)return true;
+    for(const u of ["lib/html5-qrcode.min.js","https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js","https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"]){ try{await loadOnce(u); if(window.Html5Qrcode)return true;}catch(e){} } return !!window.Html5Qrcode; }
+  function showRes(t,ok){const r=document.getElementById("scanRes");r.textContent=t;r.style.display="block";r.style.background=ok?"#E6F1EA":"#FBE9E9";r.style.color=ok?"#1E7A48":"#B23B3B";}
+  window.openScan=async function(){
+    document.getElementById("scanModal").classList.add("show");
+    document.getElementById("scanRes").style.display="none";
+    if(!(await ensureScan())){ showRes("تعذر تحميل الماسح — حدث الصفحة",false); return; }
+    try{ scanner=new Html5Qrcode("scanReader");
+      await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:220,height:220}},onScan,()=>{});
+    }catch(e){ showRes("تعذر فتح الكاميرا — اسمح بالوصول",false); }
+  };
+  window.closeScan=function(){ document.getElementById("scanModal").classList.remove("show"); if(scanner){try{scanner.stop().then(()=>scanner.clear()).catch(()=>{});}catch(e){} scanner=null;} };
+  async function onScan(text){
+    const code=String(text).trim().toUpperCase(); const now=Date.now();
+    if(code===lastC&&now-lastT<2500)return; lastC=code;lastT=now;
+    const date=new Date().toLocaleDateString("en-CA"), checkin=new Date().toISOString();
+    let res; try{ res=await window.NumanQueue.record(sb,code,date,checkin); }catch(e){ res={online:false}; }
+    if(!res.online){ showRes("✓ سجل محليا — سيرفع تلقائيا عند عودة الاتصال", true); return; }
+    const data=res.data;
+    if(!data||!data.length){showRes(code+" غير موجود",false);return;}
+    const r=data[0]; const who=(r.kind==="staff"?"المحفظ ":"")+r.full_name;
+    const map={present:"✓ حاضر",late:"⏰ متأخر",absent:"✗ غائب"};
+    showRes((map[r.status]||"✓ حاضر")+": "+who, r.status!=="absent");
+  }
+  // أظهر زر المسح بعد الدخول (كل هذه الصفحات لغير الطلاب)
+  let n=0;const t=setInterval(()=>{ if(++n>80){clearInterval(t);return;}
+    if(typeof sb==="undefined"||!sb)return;
+    const app=document.getElementById("app"); const fab=document.getElementById("scanFab"); if(!fab)return;
+    const loggedIn = app ? !app.classList.contains("hide") : true;
+    if(loggedIn) fab.classList.add("show"); else fab.classList.remove("show");
+  },400);
+})();
+</script>
+
+</body>
+</html>

@@ -675,9 +675,11 @@ async function saveRec(more){if(READONLY)return;
     from_ayah:$("recFrom").value?parseInt($("recFrom").value):null,
     to_ayah:$("recTo").value?parseInt($("recTo").value):null,rating,recorded_by:MYCODE};
   if(navigator.onLine){
-    try{ const {data,error}=await sb.from("recitation").insert(base).select().single();
+    try{ const {data,error}=await window.NumanQueue.withTimeout(sb.from("recitation").insert(base).select().single());
       if(!error){ (RECS[recCode]=RECS[recCode]||[]).push(data); renderOne(recCode); saveCache(); toast("أضيف التسميع"); return afterRec(more); }
-    }catch(e){}
+      // الخادم رفض الإدخال (ليس انقطاعًا) — أظهر الخطأ الحقيقي ولا تُكدّس عملية ستفشل للأبد
+      return toast("تعذّر الحفظ على الخادم: "+(error.message||error.code||"خطأ غير معروف")+" — شغّل numan_E_fixes.sql",1);
+    }catch(e){ /* انقطاع/مهلة فعلية → يُكدّس بالأسفل */ }
   }
   const tmp=Object.assign({id:"tmp_"+Date.now()+"_"+Math.floor(Math.random()*1e4)},base);
   (RECS[recCode]=RECS[recCode]||[]).push(tmp); renderOne(recCode); saveCache();

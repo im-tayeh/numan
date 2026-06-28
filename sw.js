@@ -1,6 +1,6 @@
 // مركز النعمان — Service Worker
 // عند أي تحديث للموقع: ارفع رقم الإصدار (CACHE_VERSION) → ينزل التحديث تلقائيًّا للمستخدمين.
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v9';
 const CACHE = 'numan-' + CACHE_VERSION;
 const SHELL = [
   'index.html','admin.html','teacher.html','committee.html',

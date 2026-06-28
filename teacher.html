@@ -808,10 +808,9 @@ async function loadRequests(){
   REQS=data||[]; renderRequests();
 }
 function reqLines(r){
-  const tm=(r.start_time?r.start_time.slice(0,5):"")+(r.end_time?" - "+r.end_time.slice(0,5):"");
+  const tm=r.time_text?esc(r.time_text):"";
   const L=[];
   L.push(`${r.weekday?esc(r.weekday)+" · ":""}${r.activity_date||""}${tm?" · "+tm:""}`);
-  if(r.stage) L.push("المرحلة: "+esc(r.stage));
   if(r.student_count!=null) L.push("عدد الطلاب: "+r.student_count);
   if(r.participants) L.push("مشاركون: "+esc(r.participants));
   if(r.bring_items) L.push("سيحضر: "+esc(r.bring_items));
@@ -861,9 +860,9 @@ async function saveReq(){if(READONLY)return;
   if(!kind)return toast("اختر نوع النشاط",1);
   if(!fac)return toast("اختر المكان",1);
   if(!date)return toast("اختر التاريخ",1);
-  const rec={kind,facility_id:parseInt(fac),stage:MYSTAGE||null,activity_date:date,
+  const rec={kind,facility_id:parseInt(fac),activity_date:date,
     weekday:$("reqDay").value||null,
-    time_text:$("reqTime").value.trim()||null,start_time:null,end_time:null,
+    time_text:$("reqTime").value.trim()||null,
     student_count:$("reqCount").value?parseInt($("reqCount").value):null,
     participants:$("reqParts").value.trim()||null,
     bring_items:$("reqBring").value.trim()||null,

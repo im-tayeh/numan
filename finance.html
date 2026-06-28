@@ -335,7 +335,7 @@ const SUPABASE_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const DOMAIN="@numan.com", FINCOM="المالية";
 const PAY_AR={cash:"كاش",bank:"بنكي"};
 
-let sb=null, MYCODE=null, IS_ADMIN=false, COM_ID=null, TASKS=[];
+let sb=null, MYCODE=null, IS_ADMIN=false, COM_ID=null, TASKS=[], REQUESTS=[];
 let ACCOUNTS=[], ENTRIES=[], NOTES=[], DEBTS=[], CATS={revenue:[],expense:[]};
 let enKind="revenue", dbDir="to_us";
 const $=(id)=>document.getElementById(id);
@@ -453,17 +453,43 @@ async function loadAll(){
   ENTRIES=b.entries||[]; NOTES=b.notes||[]; DEBTS=b.debts||[];
   renderDash(); renderEntries(); renderAccounts(); renderNotes(); renderCats(); renderDebts();
   try{ await loadTasks(); }catch(e){}
+  try{ await loadRequests(); }catch(e){}
 }
 async function loadTasks(){
   if(!COM_ID){TASKS=[];return;}
   const {data}=await sb.from("committee_tasks").select("*").eq("committee_id",COM_ID).order("id",{ascending:false});
-  TASKS=data||[]; const open=TASKS.filter(t=>t.status==="open").length;
-  const dot=$("notifDot"); if(dot){dot.textContent=open;dot.classList.toggle("hide",open===0);}
+  TASKS=data||[]; updateNotifDot();
 }
 const NT_ST={open:"مفتوحة",done:"مكتملة",deferred:"مؤجلة",rejected:"مرفوضة"};
 function openNotif(){renderNotif();$("notifModal").classList.remove("hide");}
+function updateNotifDot(){
+  const n=(TASKS||[]).filter(t=>t.status==="open").length+(REQUESTS||[]).filter(r=>!r.is_read).length;
+  const dot=$("notifDot"); if(dot){dot.textContent=n;dot.classList.toggle("hide",n===0);}
+}
+async function loadRequests(){
+  if(!navigator.onLine){REQUESTS=[];updateNotifDot();return;}
+  const {data}=await sb.from("notifications").select("*").eq("to_finance",true).order("id",{ascending:false});
+  REQUESTS=data||[]; updateNotifDot();
+}
 function renderNotif(){
-  $("notifBody").innerHTML=TASKS.length?TASKS.map(t=>{
+  const accOpts=ACCOUNTS.map(a=>`<option value="${a.id}">${esc(a.name)} (${esc(a.currency)})</option>`).join("");
+  const pend=(REQUESTS||[]).filter(r=>!r.is_read);
+  const reqHtml=pend.length?('<div style="font-weight:700;color:var(--navy-deep);margin:2px 0 8px;font-size:13.5px">طلبات واردة من المحفّظين</div>'+pend.map(r=>{
+    const m=r.meta||{}; const isFin=r.kind==="finance_request";
+    const amt=m.amount?(money(m.amount)+" "+esc(m.currency||"")):"";
+    const acts=isFin?`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <select id="reqAcc_${r.id}" style="padding:7px 10px;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px;background:#fff"><option value="">— حساب الصرف —</option>${accOpts}</select>
+        <button class="bd" onclick="approveRequest(${r.id})">اعتماد كدَين</button>
+        <button class="br" onclick="ignoreRequest(${r.id})">تجاهل</button></div>`
+      :`<div style="margin-top:8px"><button class="bf" onclick="ignoreRequest(${r.id})">تمّ الاطلاع</button></div>`;
+    return `<div class="ntask"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+      <span class="nt-t">${esc(r.title)}</span><span class="nt-pill ${isFin?'open':''}">${isFin?'طلب مصاري':'إشعار'}</span></div>
+      ${r.body?`<div class="nt-d">${esc(r.body)}</div>`:""}
+      ${amt?`<div class="nt-d">المبلغ المطلوب: <b>${amt}</b></div>`:""}
+      <div class="nt-d" style="font-size:11px;color:#8a93a0">${esc(r.created_at?String(r.created_at).slice(0,10):"")}${m.from?" · من: "+esc(m.from):""}</div>
+      ${acts}</div>`;
+  }).join("")):"";
+  const tasksHtml=TASKS.length?('<div style="font-weight:700;color:var(--navy-deep);margin:14px 0 8px;font-size:13.5px">مهام اللجنة</div>'+TASKS.map(t=>{
     const acts=t.status==="open"?`<div class="nt-acts">
       <button class="bd" onclick="respondTask(${t.id},'done')">مكتملة</button>
       <button class="bf" onclick="respondTask(${t.id},'deferred')">تأجيل</button>
@@ -473,7 +499,32 @@ function renderNotif(){
       <span class="nt-t">${esc(t.title)}</span><span class="nt-pill ${t.status}">${NT_ST[t.status]||t.status}</span></div>
       ${t.details?`<div class="nt-d">${esc(t.details)}</div>`:""}
       ${t.reply?`<div class="nt-rep"><b>ردكم:</b> ${esc(t.reply)}</div>`:""}${acts}</div>`;
-  }).join(""):'<div style="text-align:center;color:#66707D;padding:30px">لا مهام مسندة حاليا.</div>';
+  }).join("")):"";
+  $("notifBody").innerHTML=(reqHtml+tasksHtml)||'<div style="text-align:center;color:#66707D;padding:30px">لا طلبات ولا مهام حاليا.</div>';
+}
+async function approveRequest(id){
+  if(!navigator.onLine)return toast("الاعتماد يحتاج اتصالا بالانترنت",1);
+  const r=(REQUESTS||[]).find(x=>String(x.id)===String(id)); if(!r)return;
+  const sel=$("reqAcc_"+id); const accId=sel?sel.value:"";
+  if(!accId)return toast("اختر حساب الصرف اولا",1);
+  const m=r.meta||{}; const amount=Number(m.amount||0);
+  if(!amount||amount<=0)return toast("الطلب لا يحوي مبلغا صحيحا",1);
+  const party=m.from||r.created_by||"محفّظ";
+  const rec={debt_date:new Date().toLocaleDateString("en-CA"),party,direction:"on_us",
+    account_id:parseInt(accId),currency:accCur(parseInt(accId)),amount,paid:0,
+    due_date:null,reason:(r.title||"طلب مصاري للتحفيظ"),related_staff:r.created_by||null,
+    status:"open",created_by:MYCODE};
+  const ins=await sb.from("fin_debts").insert(rec);
+  if(ins.error)return toast("تعذر الاعتماد: "+ins.error.message,1);
+  await sb.from("notifications").update({is_read:true}).eq("id",id);
+  toast("اعتُمد الطلب — سُجّل كدَين «علينا»");
+  await loadAll(); renderNotif();
+}
+async function ignoreRequest(id){
+  if(!confirm("تجاهل هذا الطلب؟ لن يظهر مجددا."))return;
+  const {error}=await sb.from("notifications").update({is_read:true}).eq("id",id);
+  if(error)return toast("تعذر: "+error.message,1);
+  await loadRequests(); renderNotif(); toast("تم");
 }
 async function respondTask(id,status){
   let reply=null;
@@ -566,9 +617,16 @@ async function addDebt(){
 async function markDebtPaid(id){
   if(!navigator.onLine)return toast("التسديد يحتاج اتصالا بالانترنت",1);
   const d=DEBTS.find(x=>String(x.id)===String(id)); if(!d)return;
-  const {error}=await sb.from("fin_debts").update({paid:Number(d.amount),status:"paid"}).eq("id",id);
+  const remaining=Number(d.amount)-Number(d.paid||0);
+  const ans=prompt("المبلغ المسدَّد الآن (المتبقي "+money(remaining)+" "+(d.currency||"")+"):", String(remaining));
+  if(ans===null)return;
+  let pay=parseFloat(ans); if(isNaN(pay)||pay<=0)return toast("ادخل مبلغا صحيحا",1);
+  if(pay>remaining+0.0001)pay=remaining;
+  const newPaid=Number(d.paid||0)+pay;
+  const newStatus=(newPaid>=Number(d.amount)-0.0001)?"paid":"partial";
+  const {error}=await sb.from("fin_debts").update({paid:newPaid,status:newStatus}).eq("id",id);
   if(error)return toast("تعذر التحديث: "+error.message,1);
-  toast("سجل التسديد"); await loadAll();
+  toast(newStatus==="paid"?"سُدِّد بالكامل":"سُجِّل تسديد جزئي"); await loadAll();
 }
 async function delDebt(id){
   if(!confirm("حذف الدين؟"))return;
@@ -598,12 +656,14 @@ async function delEntry(id){ if(!confirm("حذف الحركة؟"))return;
 function acctBalance(a){
   const ins=ENTRIES.filter(e=>e.account_id===a.id&&e.kind==="revenue").reduce((s,e)=>s+Number(e.amount),0);
   const outs=ENTRIES.filter(e=>e.account_id===a.id&&e.kind==="expense").reduce((s,e)=>s+Number(e.amount),0);
-  // اثر الديون على الرصيد: استدانتنا (علينا) دخلت للحساب، واقراضنا (لنا) خرج منه — حسب المتبقي
+  // اثر الديون على الرصيد بدقة:
+  //  • علينا (دين علينا/طلب محفّظ): لا يمس الرصيد حتى السداد الفعلي، فينقص بالمبلغ المسدَّد.
+  //  • لنا (أقرضنا): المبلغ خرج من الحساب عند الإقراض، ويعود عند السداد، فيُطرح المتبقي.
   let debtAdj=0;
   DEBTS.filter(d=>d.account_id===a.id).forEach(d=>{
-    const out=Number(d.amount)-Number(d.paid||0);
-    if(d.direction==="on_us") debtAdj+=out;
-    else if(d.direction==="to_us") debtAdj-=out;
+    const remaining=Number(d.amount)-Number(d.paid||0), paid=Number(d.paid||0);
+    if(d.direction==="on_us") debtAdj-=paid;
+    else if(d.direction==="to_us") debtAdj-=remaining;
   });
   return {ins,outs,debtAdj,bal:Number(a.opening_balance)+ins-outs+debtAdj};
 }
